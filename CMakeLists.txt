@@ -19,6 +19,13 @@ target_include_directories(energyPriceCore
 	"${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
+find_package(LibXml2 REQUIRED)
+target_link_libraries(energyPriceCore
+	PRIVATE
+	LibXml2::LibXml2
+)
+
+
 target_compile_options(energyPriceCore
 	PRIVATE
 		-Wall
@@ -49,13 +56,18 @@ enable_testing()
 find_package(GTest REQUIRED)
 
 add_executable(unitTest
-	tests/tgeParserTest.cc
+	tests/unit/tgeParserTest.cc
 )
 
 target_link_libraries(unitTest
 	PRIVATE
 		energyPriceCore
 		GTest::gmock_main
+)
+
+target_compile_definitions(unitTest
+	PRIVATE
+		TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/data"
 )
 
 target_compile_options(unitTest
@@ -66,9 +78,72 @@ target_compile_options(unitTest
 		-Werror
 )
 
+add_executable(integrationTest
+	tests/integration/tgeGoldenCaseTest.cc
+)
+
+target_link_libraries(integrationTest
+	PRIVATE
+		energyPriceCore
+		GTest::gmock_main
+)
+
+target_compile_definitions(integrationTest
+	PRIVATE
+		TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/data"
+)
+
+target_compile_options(integrationTest
+	PRIVATE
+		-Wall
+		-Wextra
+		-Wpedantic
+		-Werror
+)
+
 include(GoogleTest)
-gtest_discover_tests(unitTest)
+gtest_discover_tests(unitTest
+	PROPERTIES LABELS unit
+)
+
+gtest_discover_tests(integrationTest
+	PROPERTIES LABELS integration
+)
+
 option(ENABLE_ASAN "Enable AddressSanitizer" ON)
+
+if(ENABLE_ASAN)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(energyPriceCore
+            PRIVATE
+                -fsanitize=address
+                -fno-omit-frame-pointer
+        )
+
+        target_compile_options(unitTest
+            PRIVATE
+                -fsanitize=address
+                -fno-omit-frame-pointer
+        )
+
+        target_link_options(unitTest
+            PRIVATE
+                -fsanitize=address
+        )
+        target_compile_options(integrationTest
+            PRIVATE
+                -fsanitize=address
+                -fno-omit-frame-pointer
+        )
+
+        target_link_options(integrationTest
+            PRIVATE
+                -fsanitize=address
+        )
+    else()
+        message(WARNING "AddressSanitizer is not configured for this compiler")
+    endif()
+endif()
 
 
 
