@@ -3,47 +3,19 @@
 
 #include "../src/tgeParser.h"
 
+std::ostream& operator<<(std::ostream &out, const RawTable &table) {
+	std::string toPrint;
+	for (const auto &row : table) {
+		for (const auto &cell : row) {
+			toPrint += cell;
+			toPrint += ", ";
+		}
+		toPrint += "\n";
+	}
 
-TEST(tgeParser, emptyHtmlThrowsException) {
-	TgeParser parser;
-	ASSERT_THROW(parser.parseEnergyPricesTable(""), std::runtime_error);
+	return out << toPrint;
 }
 
-TEST(tgeParser, sanitizerTest) {
-	TgeParser parser;
-	std::string simplestHtml = "<html><body></<body></hmlt>";
-	ASSERT_NO_THROW(parser.parseEnergyPricesTable(simplestHtml));
-}
-
-TEST(howTo, libxml2Reading) {
-	TgeParser parser;
-	std::string simplestHtml = "<html><head></head><body></<body></html>";
-	parser.parseEnergyPricesTable(simplestHtml);
-	ASSERT_TRUE(true);
-}
-
-TEST(tgeParser, findTable) {
-	TgeParser parser;
-	constexpr std::string_view singleTable =
-		"<html lang=\"pl\">"
-		"  <head>"
-		"    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />"
-		"  </head>"
-		"  <body>"
-		"	<hr class=\"margin-bottom-0\">"
-		"	<div class=\"table-rdb-holder\">"
-		"	    <div class=\"table-body-responsive table-rdb-object\">"
-		"		<table id=\"rdn\" class=\"table table-hover table-rdb\" style=\"font-size: 14px\">"
-		"		</table>"
-		"	    </div>"
-		"	</div>"
-		"  </body>"
-		"</html>";
-
-
-	auto tableList = parser.parseEnergyPricesTable(singleTable);
-	ASSERT_EQ(tableList.size(), 1);
-}
 
 TEST(tgeParser, getDataFromTable) {
 	constexpr std::string_view html = R"HTML(
@@ -168,6 +140,9 @@ TEST(tgeParser, getDataFromTable) {
 		{"2026-07-18_H02", "615,00", "631,88", "621,20"}};
 
 	TgeParser parser;
-	EXPECT_EQ(parser.parseEnergyPricesTable(html), expected);
+	auto result = parser.parseEnergyPricesTable(html);
+	std::cout << "----------------------" << std::endl;
+	std::cout << result << std::endl;
+	std::cout << "----------------------" << std::endl;
+	EXPECT_EQ(result, expected);
 }
-

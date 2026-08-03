@@ -1,25 +1,28 @@
 #include "tgeParser.h"
 
-#include <libxml/HTMLparser.h>
+#include "htmlTableExtractor.h"
 
-namespace  {
-	using HtmlDocument = std::unique_ptr<xmlDoc, decltype(&xmlFreeDoc)>;
-	HtmlDocument readHtml(const std::string_view html) {
-		return {htmlReadMemory(
-				html.data(),
-				html.size(),
-				nullptr,
-				nullptr,
-				HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING),
-		       &xmlFreeDoc};
-	}
-}
+
 
 RawTable TgeParser::parseEnergyPricesTable(const std::string_view html) const {
-	auto document = readHtml(html);
-	if (document == nullptr) {
-		throw std::runtime_error("Filed to parse HTML document");
+	HtmlTableExtractor extractor;
+	auto tables = extractor.extractTables(html);
+	for (auto &table : tables) {
+		if (isProperTable(table)) {
+			return table;
+		}
 	}
-	return {};
+	return {{}};
+}
+
+bool TgeParser::isProperTable(const RawTable &table) const {
+	for (const auto &row : table) {
+		for (const auto &cell : row) {
+			if (cell == "Data dostawy") {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 

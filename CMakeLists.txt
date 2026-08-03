@@ -12,6 +12,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 
 add_library(energyPriceCore
 	src/tgeParser.cc
+	src/htmlTableExtractor.cc
 )
 
 target_include_directories(energyPriceCore
@@ -57,12 +58,14 @@ find_package(GTest REQUIRED)
 
 add_executable(unitTest
 	tests/unit/tgeParserTest.cc
+	tests/unit/htmlTableExtractorTest.cc
 )
 
 target_link_libraries(unitTest
 	PRIVATE
 		energyPriceCore
 		GTest::gmock_main
+		LibXml2::LibXml2
 )
 
 target_compile_definitions(unitTest
