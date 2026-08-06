@@ -11,6 +11,7 @@ public:
 private:
 	energyPricesTable extractEnergyPrices(const RawTable &table) const;
 	bool isProperTable(const RawTable &table) const;
+	std::optional<double> getValue(const RawRow &row, const std::size_t index) const;
 	std::optional<double> getDouble(const std::string &str) const;
 };
 

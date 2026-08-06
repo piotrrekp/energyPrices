@@ -32,14 +32,22 @@ energyPricesTable TgeParser::extractEnergyPrices([[maybe_unused]] const RawTable
 		}
 		EnergyPrice ep;
 		ep.time = row->at(0);
-		ep.fixing1 = getDouble(stringUtils::trim(row->at(2)));
-		ep.fixing2 = getDouble(stringUtils::trim(row->at(7)));
-		ep.meanPrice = getDouble(stringUtils::trim(row->at(13)));
+		ep.fixing1 = getValue(*row, 2);
+		ep.fixing2 = getValue(*row, 7);
+		ep.meanPrice = getValue(*row, 13);
 
 		prices.push_back(ep);
 	}
 
 	return prices;
+}
+
+std::optional<double> TgeParser::getValue(const RawRow &row, const std::size_t index) const {
+	if (row.size() <= index) {
+		return std::nullopt;
+	}
+
+	return getDouble(stringUtils::trim(row.at(index)));
 }
 
 std::optional<double> TgeParser::getDouble(const std::string &str) const {

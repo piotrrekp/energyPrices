@@ -35,4 +35,12 @@ struct EnergyPrice {
 
 using energyPricesTable = std::vector<EnergyPrice>;
 
+inline std::ostream& operator<<(std::ostream &out, const energyPricesTable &prices) {
+	for (const auto & row: prices) {
+		out << row << std::endl;
+	}
+
+	return out;
+}
+
 

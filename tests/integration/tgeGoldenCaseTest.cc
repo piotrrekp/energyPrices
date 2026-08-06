@@ -40,3 +40,22 @@ TEST(TgeParserIntegration, parsesHourlyPricesFromGoldenCase) {
 
 	EXPECT_EQ(result, expected);
 }
+
+
+TEST(TgeParserIntegration, skipsRowWithMissingColumns) {
+	auto html =
+		loadFile(std::string(TEST_DATA_DIR) + "/tgeMissionPrices.html");
+
+	const TgeParser parser;
+	const auto prices = parser.parseEnergyPricesTable(html);
+
+	ASSERT_EQ(prices.size(), 3);
+	EXPECT_EQ(prices[0].time, "2026-07-18_H01");
+	EXPECT_EQ(prices[2].time, "2026-07-18_H03");
+
+	const auto &price = prices[1];
+	EXPECT_EQ(price.time, "2026-07-18_H02");
+	EXPECT_EQ(price.fixing1, std::nullopt);
+	EXPECT_EQ(price.fixing2, std::nullopt);
+	EXPECT_EQ(price.meanPrice, std::nullopt);
+}
