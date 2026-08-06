@@ -13,6 +13,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 add_library(energyPriceCore
 	src/tgeParser.cc
 	src/htmlTableExtractor.cc
+	src/stringUtils.cc
 )
 
 target_include_directories(energyPriceCore

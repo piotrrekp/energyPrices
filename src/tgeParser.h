@@ -3,12 +3,15 @@
 
 
 #include "model.h"
+#include "energyPricesModel.h"
 
 class TgeParser {
 public:
-	RawTable parseEnergyPricesTable(const std::string_view html) const;
+	energyPricesTable parseEnergyPricesTable(const std::string_view html) const;
 private:
+	energyPricesTable extractEnergyPrices(const RawTable &table) const;
 	bool isProperTable(const RawTable &table) const;
+	std::optional<double> getDouble(const std::string &str) const;
 };
 
 #endif // _TGEPARSER_H_

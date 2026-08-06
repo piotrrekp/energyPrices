@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <string>
 
 #include "../src/tgeParser.h"
@@ -135,14 +136,11 @@ TEST(tgeParser, getDataFromTable) {
 	</html>
 	)HTML";
 
-	RawTable expected = {
-		{"2026-07-18_H01", "669,04", "679,53", "671,62"},
-		{"2026-07-18_H02", "615,00", "631,88", "621,20"}};
-
 	TgeParser parser;
-	auto result = parser.parseEnergyPricesTable(html);
-	std::cout << "----------------------" << std::endl;
-	std::cout << result << std::endl;
-	std::cout << "----------------------" << std::endl;
+	std::vector<EnergyPrice> result = parser.parseEnergyPricesTable(html);
+	const std::vector<EnergyPrice> expected = {
+		{"2026-07-18_H01", 669.04, 679.53, 671.62},
+		{"2026-07-18_H02", 615.00, 631.88, 621.20}};
+
 	EXPECT_EQ(result, expected);
 }
