@@ -14,6 +14,7 @@ add_library(energyPriceCore
 	src/tgeParser.cc
 	src/htmlTableExtractor.cc
 	src/stringUtils.cc
+	src/httpClient.cc
 )
 
 target_include_directories(energyPriceCore
@@ -22,9 +23,12 @@ target_include_directories(energyPriceCore
 )
 
 find_package(LibXml2 REQUIRED)
+find_package(CURL REQUIRED)
+
 target_link_libraries(energyPriceCore
 	PRIVATE
 	LibXml2::LibXml2
+	CURL::libcurl
 )
 
 
@@ -60,6 +64,7 @@ find_package(GTest REQUIRED)
 add_executable(unitTest
 	tests/unit/tgeParserTest.cc
 	tests/unit/htmlTableExtractorTest.cc
+	tests/unit/httpClientTests.cc
 )
 
 target_link_libraries(unitTest

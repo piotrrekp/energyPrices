@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <string>
 
-#include "../src/tgeParser.h"
+#include "tgeParser.h"
 
 std::ostream& operator<<(std::ostream &out, const RawTable &table) {
 	std::string toPrint;
