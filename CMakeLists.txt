@@ -123,32 +123,24 @@ option(ENABLE_ASAN "Enable AddressSanitizer" ON)
 
 if(ENABLE_ASAN)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(energyPriceCore
-            PRIVATE
+        target_compile_options(energyPriceCore PRIVATE
                 -fsanitize=address
                 -fno-omit-frame-pointer
         )
 
-        target_compile_options(unitTest
-            PRIVATE
+        target_compile_options(unitTest PRIVATE
                 -fsanitize=address
                 -fno-omit-frame-pointer
         )
-
-        target_link_options(unitTest
-            PRIVATE
-                -fsanitize=address
+        target_link_options(unitTest PRIVATE -fsanitize=address
         )
-        target_compile_options(integrationTest
-            PRIVATE
+        target_compile_options(integrationTest PRIVATE
                 -fsanitize=address
                 -fno-omit-frame-pointer
         )
-
-        target_link_options(integrationTest
-            PRIVATE
-                -fsanitize=address
-        )
+        target_link_options(integrationTest PRIVATE -fsanitize=address)
+	target_compile_options(energyPrices PRIVATE -fsanitize=address -g)
+	target_link_options(energyPrices PRIVATE -fsanitize=address)
     else()
         message(WARNING "AddressSanitizer is not configured for this compiler")
     endif()
