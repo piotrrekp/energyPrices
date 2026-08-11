@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
 project(energy_prices, LANGUAGES CXX)
-set(CMAKE_CXX_COMPILER /usr/bin/g++)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,6 +21,24 @@ target_include_directories(energyPriceCore
 	PUBLIC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
+
+find_path(ASIO_INCLUDE_DIR asio.hpp)
+
+if(NOT ASIO_INCLUDE_DIR)
+    message(FATAL_ERROR
+        "Asio not found. Install it with: sudo apt install libasio-dev"
+    )
+endif()
+
+include(FetchContent)
+
+FetchContent_Declare(
+    Crow
+    GIT_REPOSITORY https://github.com/CrowCpp/Crow.git
+    GIT_TAG v1.2.1
+)
+
+FetchContent_MakeAvailable(Crow)
 
 find_package(LibXml2 REQUIRED)
 find_package(CURL REQUIRED)
@@ -58,6 +75,24 @@ target_compile_options(energyPrices
 		-Werror
 )
 
+add_executable(energyPricesServer
+	app/server.cc
+	src/energyPricesServer.cc
+)
+
+target_link_libraries(energyPricesServer
+	PRIVATE
+		energyPriceCore
+		Crow::Crow
+)
+
+target_compile_options(energyPricesServer
+	PRIVATE
+		-Wall
+		-Wextra
+		-Wpedantic
+		-Werror
+)
 
 enable_testing()
 find_package(GTest REQUIRED)
