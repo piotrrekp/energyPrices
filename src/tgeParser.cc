@@ -49,25 +49,6 @@ std::optional<double> TgeParser::getValue(const RawRow &row, const std::size_t i
 		return std::nullopt;
 	}
 
-	return getDouble(stringUtils::trim(row.at(index)));
+	return stringUtils::getDouble(row.at(index));
 }
 
-std::optional<double> TgeParser::getDouble(const std::string &str) const {
-	std::string value = str;
-	std::replace(value.begin(), value.end(), ',', '.');
-
-	try {
-		std::size_t parsedCharacters = 0;
-		const double result = std::stod(value, &parsedCharacters);
-
-		if (parsedCharacters != value.size()) {
-			return std::nullopt;
-		}
-
-		return result;
-	} catch (const std::invalid_argument &) {
-		return std::nullopt;
-	} catch (const std::out_of_range &) {
-		return std::nullopt;
-	}
-}

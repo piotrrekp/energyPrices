@@ -11,10 +11,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 
 add_library(energyPriceCore
-	src/tgeParser.cc
 	src/htmlTableExtractor.cc
-	src/stringUtils.cc
 	src/httpClient.cc
+	src/stringUtils.cc
+	src/tgeParser.cc
+	src/tgeUrlBuilder.cc
 )
 
 target_include_directories(energyPriceCore
@@ -65,6 +66,8 @@ add_executable(unitTest
 	tests/unit/tgeParserTest.cc
 	tests/unit/htmlTableExtractorTest.cc
 	tests/unit/httpClientTests.cc
+	tests/unit/tgeUrlBuilderTests.cc
+	tests/unit/stringUtilsTests.cc
 )
 
 target_link_libraries(unitTest

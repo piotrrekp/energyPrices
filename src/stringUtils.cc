@@ -27,4 +27,25 @@ namespace stringUtils {
 		trimmed = trimLeft(trimmed);
 		return trimmed;
 	}
+
+	std::optional<double> getDouble(const std::string &str) {
+		std::string value = trim(str);
+		std::ranges::replace(value, ',', '.');
+		std::erase(value, ' ');
+
+		try {
+			std::size_t parsedCharacters = 0;
+			const double result = std::stod(value, &parsedCharacters);
+
+			if (parsedCharacters != value.size()) {
+				return std::nullopt;
+			}
+
+			return result;
+		} catch (const std::invalid_argument &) {
+			return std::nullopt;
+		} catch (const std::out_of_range &) {
+			return std::nullopt;
+		}
+	}
 }
