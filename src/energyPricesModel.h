@@ -12,6 +12,8 @@ struct EnergyPrice {
 	std::optional<double> fixing2;
 	std::optional<double> meanPrice;
 
+	// EnergyPrice(): time("00:00_H00"), fixing1(std::nullopt), fixing2(std::nullopt), meanPrice(std::nullopt) {}
+	// EnergyPrice(std::string t, double f1, double f2, double mean): time(t), fixing1(f1), fixing2(f2), meanPrice(mean) {}
 	bool operator==(const EnergyPrice &) const = default;
 
 	std::ostream &printOptional(std::ostream &out, const std::optional<double> &value) {
@@ -42,5 +44,3 @@ inline std::ostream& operator<<(std::ostream &out, const energyPricesTable &pric
 
 	return out;
 }
-
-

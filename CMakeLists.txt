@@ -12,6 +12,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 add_library(energyPriceCore
 	src/htmlTableExtractor.cc
 	src/httpClient.cc
+	src/priceService.cc
 	src/stringUtils.cc
 	src/tgeParser.cc
 	src/tgeUrlBuilder.cc
@@ -78,6 +79,7 @@ target_compile_options(energyPrices
 add_executable(energyPricesServer
 	app/server.cc
 	src/energyPricesServer.cc
+	src/priceService.cc
 )
 
 target_link_libraries(energyPricesServer
@@ -103,6 +105,7 @@ add_executable(unitTest
 	tests/unit/httpClientTests.cc
 	tests/unit/tgeUrlBuilderTests.cc
 	tests/unit/stringUtilsTests.cc
+	tests/unit/priceServiceTests.cc
 )
 
 target_link_libraries(unitTest
