@@ -100,12 +100,14 @@ enable_testing()
 find_package(GTest REQUIRED)
 
 add_executable(unitTest
+	src/energyPricesServer.cc
 	tests/unit/tgeParserTest.cc
 	tests/unit/htmlTableExtractorTest.cc
 	tests/unit/httpClientTests.cc
 	tests/unit/tgeUrlBuilderTests.cc
 	tests/unit/stringUtilsTests.cc
 	tests/unit/priceServiceTests.cc
+	tests/unit/energyPriceServerTests.cc
 )
 
 target_link_libraries(unitTest
@@ -113,6 +115,7 @@ target_link_libraries(unitTest
 		energyPriceCore
 		GTest::gmock_main
 		LibXml2::LibXml2
+		Crow::Crow
 )
 
 target_compile_definitions(unitTest
@@ -182,6 +185,7 @@ if(ENABLE_ASAN)
         target_link_options(integrationTest PRIVATE -fsanitize=address)
 	target_compile_options(energyPrices PRIVATE -fsanitize=address -g)
 	target_link_options(energyPrices PRIVATE -fsanitize=address)
+	target_link_options(energyPricesServer PRIVATE -fsanitize=address)
     else()
         message(WARNING "AddressSanitizer is not configured for this compiler")
     endif()

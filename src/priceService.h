@@ -7,6 +7,8 @@
 class priceService {
 public:
 	displayPrices getPriceTable(const energyPricesTable &table);
+private:
+	std::string formateTimePeriod(std::string_view time);
 };
 
 #endif // _PRICESERVICE_H_

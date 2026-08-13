@@ -7,7 +7,7 @@ displayPrices priceService::getPriceTable([[maybe_unused]]const energyPricesTabl
 	displayPrices prices;
 	for (const auto &row : table) {
 		displayPrice price;
-		price.time = row.time;
+		price.time = formateTimePeriod(row.time);
 		if (row.meanPrice) {
 			price.price = row.meanPrice;
 		} else if (row.fixing2) {
@@ -20,3 +20,7 @@ displayPrices priceService::getPriceTable([[maybe_unused]]const energyPricesTabl
 	}
 	return prices;
 }
+
+std::string priceService::formateTimePeriod(std::string_view time) {
+	return time.data();
+};

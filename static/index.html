@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+
+    <title>Ceny energii</title>
+</head>
+
+<body>
+    <main class="container">
+        <h1>Ceny energii na jutro</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Godzina</th>
+                    <th>Cena [PLN/MWh]</th>
+                </tr>
+            </thead>
+
+            <tbody id="prices">
+            </tbody>
+        </table>
+    </main>
+<script>
+	fetch("/api/prices/tomorrow")
+		.then(response => response.json())
+		.then(data => {
+			const table = document.getElementById("prices");
+
+			data.prices.forEach(price => {
+				const row = document.createElement("tr");
+
+				row.innerHTML = `
+					<td>${price.time}</td>
+					<td>${price.price}</td>
+				`;
+
+				table.appendChild(row);
+			});
+		});
+</script>
+</body>
+</html>

@@ -1,3 +1,6 @@
+#ifndef _DISPLAYMODEL_H_
+#define _DISPLAYMODEL_H_
+
 #include <optional>
 #include <vector>
 #include <string>
@@ -10,3 +13,5 @@ struct displayPrice {
 };
 
 using displayPrices = std::vector<displayPrice>;
+
+#endif // _DISPLAYMODEL_H_
