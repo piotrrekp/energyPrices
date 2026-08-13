@@ -2,7 +2,7 @@
 
 constexpr std::string_view IndexPage = "static/index.html";
 
-energyPricesServer::energyPricesServer(crow::SimpleApp &_app) : app{_app} {
+energyPricesServer::energyPricesServer(crow::SimpleApp &_app, priceService &service) : app{_app}, pricesService{service} {
 	setupRoutes();
 }
 
@@ -27,6 +27,10 @@ void energyPricesServer::routeToPricesTomorrow() {
 	CROW_ROUTE(app, "/api/prices/tomorrow")([this](){
 		crow::json::wvalue response;
 		std::size_t i = 0;
+
+		std::chrono::year_month_day date{
+			std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
+		auto prices = this->getPrices(date);
 		for (const auto &x : prices) {
 			response["prices"][i]["time"] = x.time;
 			response["prices"][i++]["price"] = x.price.value();
@@ -36,6 +40,13 @@ void energyPricesServer::routeToPricesTomorrow() {
 	});
 }
 
-void energyPricesServer::setPrices(const displayPrices &table) {
-	prices = table;
+#include <iomanip>
+displayPrices energyPricesServer::getPrices(const std::chrono::year_month_day date) {
+	std::cout << __PRETTY_FUNCTION__ << " -> for date " <<
+		static_cast<int>(date.year()) << '-'
+		    << std::setw(2) << std::setfill('0')
+		    << static_cast<unsigned>(date.month()) << '-'
+		    << std::setw(2)
+		    << static_cast<unsigned>(date.day()) << std::endl;
+	return pricesService.getPriceTable(date);
 }

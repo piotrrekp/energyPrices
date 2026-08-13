@@ -1,5 +1,7 @@
 #include "priceService.h"
 
+priceService::priceService(priceProvider &_provider) : provider(_provider) {}
+
 displayPrices priceService::getPriceTable([[maybe_unused]]const energyPricesTable &table) {
 	if (table.empty()) {
 		return {};
@@ -21,6 +23,10 @@ displayPrices priceService::getPriceTable([[maybe_unused]]const energyPricesTabl
 	return prices;
 }
 
+displayPrices priceService::getPriceTable(const std::chrono::year_month_day date) {
+	return getPriceTable(provider.getPrices(date));
+}
+
 std::string priceService::formateTimePeriod(std::string_view time) {
 	return time.data();
-};
+}

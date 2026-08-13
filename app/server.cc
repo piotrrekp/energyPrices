@@ -1,21 +1,14 @@
 #include "energyPricesServer.h"
-#include "tgeParser.h"
-#include "httpClient.h"
-#include "tgeUrlBuilder.h"
+#include "tgePriceProvider.h"
 #include "priceService.h"
 
 
 int main() {
-	TgeParser tge;
-	tgeUrlBuilder builder;
-	std::string url = builder.getUrlForTomorrow();
-	httpClient client(url);
-	auto html = client.getPage();
-	auto prices = tge.parseEnergyPricesTable(html);
+	tgePriceProvider provider;
+	priceService service{provider};
 	crow::SimpleApp app;
-	energyPricesServer server(app);
-	priceService service;
-	server.setPrices(service.getPriceTable(prices));
+	energyPricesServer server(app, service);
+
 	server.run();
 
 	return 0;

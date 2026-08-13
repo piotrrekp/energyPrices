@@ -3,20 +3,21 @@
 
 #include "crow.h"
 #include "displayModel.h"
+#include "priceService.h"
 
 class energyPricesServer {
 public:
-	energyPricesServer(crow::SimpleApp &app);
-	void setPrices(const displayPrices &table);
+	energyPricesServer(crow::SimpleApp &app, priceService &pricesService);
 	void run();
 
 private:
 	void setupRoutes();
 	void routeToIndex();
 	void routeToPricesTomorrow();
+	displayPrices getPrices(const std::chrono::year_month_day date);
 
 	crow::SimpleApp &app;
-	displayPrices prices;
+	priceService &pricesService;
 };
 
 #endif // _ENERGYPRICESSERVER_H_

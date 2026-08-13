@@ -16,6 +16,7 @@ add_library(energyPriceCore
 	src/stringUtils.cc
 	src/tgeParser.cc
 	src/tgeUrlBuilder.cc
+	src/tgePriceProvider.cc
 )
 
 target_include_directories(energyPriceCore
