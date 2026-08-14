@@ -5,6 +5,10 @@
 
 - [ ] Formatowanie daty w tabelce i zakresu czasu + kolumny z wczoraj i na jutro
 
+- [x] Formatowanie daty
+- [ ] Cena na kWh nie MWh
+- [ ] Dodatkowa kolumna z cenami na jutro
+
 
 ## NEXT
 

@@ -45,3 +45,27 @@ TEST_F(priceServiceTest, returnMeanIfAvailable) {
 
     EXPECT_EQ(service.getPriceTable(unimportantDate), expected);
 }
+
+TEST_F(priceServiceTest, timeFormatFirstHour) {
+    const double _ = .0;
+    const std::string time = "2026-08-14_H01";
+    const energyPricesTable input{{time , _, _, _}};
+    ON_CALL(provider, getPrices).WillByDefault(::testing::Return(input));
+
+    const std::string expectedTime = "00:00 - 01:00";
+    auto restult = service.getPriceTable(unimportantDate);
+    ASSERT_EQ(restult.size(), 1);
+    EXPECT_EQ(restult.at(0).time, expectedTime);
+}
+
+TEST_F(priceServiceTest, timeFormatLastHour) {
+    const double _ = .0;
+    const std::string time = "2026-08-14_H24";
+    const energyPricesTable input{{time , _, _, _}};
+    ON_CALL(provider, getPrices).WillByDefault(::testing::Return(input));
+
+    const std::string expectedTime = "23:00 - 24:00";
+    auto restult = service.getPriceTable(unimportantDate);
+    ASSERT_EQ(restult.size(), 1);
+    EXPECT_EQ(restult.at(0).time, expectedTime);
+}
