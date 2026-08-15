@@ -13,6 +13,7 @@ void energyPricesServer::run() {
 void energyPricesServer::setupRoutes() {
 	routeToIndex();
 	routeToPricesTomorrow();
+	routeToPricesToday();
 }
 
 void energyPricesServer::routeToIndex() {
@@ -30,6 +31,26 @@ void energyPricesServer::routeToPricesTomorrow() {
 
 		std::chrono::year_month_day date{
 			std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
+		std::chrono::year_month_day day{std::chrono::sys_days{date} + std::chrono::days{1}};
+
+		auto prices = this->getPrices(day);
+		for (const auto &x : prices) {
+			response["prices"][i]["time"] = x.time;
+			response["prices"][i++]["price"] = x.price.value();
+
+		}
+		return response;
+	});
+}
+
+void energyPricesServer::routeToPricesToday() {
+	CROW_ROUTE(app, "/api/prices/today")([this](){
+		crow::json::wvalue response;
+		std::size_t i = 0;
+
+		std::chrono::year_month_day date{
+			std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
+
 		auto prices = this->getPrices(date);
 		for (const auto &x : prices) {
 			response["prices"][i]["time"] = x.time;

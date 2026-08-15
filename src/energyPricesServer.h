@@ -14,6 +14,7 @@ private:
 	void setupRoutes();
 	void routeToIndex();
 	void routeToPricesTomorrow();
+	void routeToPricesToday();
 	displayPrices getPrices(const std::chrono::year_month_day date);
 
 	crow::SimpleApp &app;

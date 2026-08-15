@@ -2,18 +2,13 @@
 
 ## NOW
 
-
-- [ ] Formatowanie daty w tabelce i zakresu czasu + kolumny z wczoraj i na jutro
-
-- [x] Formatowanie daty
-- [ ] Cena na kWh nie MWh
-- [ ] Dodatkowa kolumna z cenami na jutro
-
+- [ ] Obsługa braku danych dla jutra
+- [ ] Prezentacja daty
+- [ ] Wyszczególnienie aktualnej godziny
 
 ## NEXT
 
 - [ ] Poprawa wyglądu strony
-- [ ] Obsługa braku danych dla jutra
 - [ ] Testy PriceService
 - [ ] Test endpointu /api/prices/tomorrow
 - [ ] Obsługa błędów pobierania TGE
@@ -46,3 +41,4 @@
 - [x] Podstawowa strona HTML
 - [x] Pobieranie JSON przez frontend
 - [x] Wyświetlanie rzeczywistych cen
+- [x] Formatowanie daty w tabelce i zakresu czasu + wyświetlanie dzisiaj/jutro

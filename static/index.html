@@ -8,13 +8,28 @@
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
     >
+    <style>
+        .day-selector {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
 
     <title>Ceny energii</title>
 </head>
 
 <body>
+
     <main class="container">
-        <h1>Ceny energii na jutro</h1>
+        <div class="day-selector">
+            <button id="todayButton">Dzisiaj</button>
+            <button id="tomorrowButton">Jutro</button>
+        </div>
+
+        <h1>Ceny energii</h1>
+
 
         <table>
             <thead>
@@ -29,22 +44,49 @@
         </table>
     </main>
 <script>
-	fetch("/api/prices/tomorrow")
-		.then(response => response.json())
-		.then(data => {
-			const table = document.getElementById("prices");
+    fetch("/api/prices/tomorrow")
+            .then(response => response.json())
+            .then(data => {
+                    const table = document.getElementById("prices");
 
-			data.prices.forEach(price => {
-				const row = document.createElement("tr");
+                    data.prices.forEach(price => {
+                            const row = document.createElement("tr");
 
-				row.innerHTML = `
-					<td>${price.time}</td>
-                                        <td>${price.price.toFixed(2)}</td>
-				`;
+                            row.innerHTML = `
+                                    <td>${price.time}</td>
+                                    <td>${price.price.toFixed(2)}</td>
+                            `;
 
-				table.appendChild(row);
-			});
-		});
+                            table.appendChild(row);
+                    });
+            });
+
+    async function loadPrices(day) {
+        const response = await fetch(`/api/prices/${day}`);
+        const prices = await response.json();
+
+        const table = document.getElementById("prices");
+        table.innerHTML = "";
+
+        for (const price of prices.prices) {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${price.time}</td>
+                <td>${price.price?.toFixed(2) ?? "-"}</td>
+            `;
+
+            table.appendChild(row);
+        }
+    }
+
+document
+    .getElementById("todayButton")
+    .addEventListener("click", () => loadPrices("today"));
+
+document
+    .getElementById("tomorrowButton")
+    .addEventListener("click", () => loadPrices("tomorrow"));
 </script>
 </body>
 </html>
