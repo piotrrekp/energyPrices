@@ -22,7 +22,9 @@ TEST_F(priceServiceTest, returnFixing1IfAvailable) {
     const double fixing1Price = 632.32;
     const energyPricesTable input{{" ", fixing1Price, std::nullopt, std::nullopt}};
     ON_CALL(provider, getPrices).WillByDefault(::testing::Return(input));
-    const displayPrices expected{{" ", fixing1Price}};
+
+    const double expectedValue = 0.63;
+    const displayPrices expected{{" ", expectedValue}};
 
     EXPECT_EQ(service.getPriceTable(unimportantDate), expected);
 }
@@ -32,8 +34,8 @@ TEST_F(priceServiceTest, returnFixing2IfMeanIsNotAvailable) {
 
     ON_CALL(provider, getPrices).WillByDefault(::testing::Return(input));
 
-    const displayPrices expected{{" ", fixing2Price}};
-
+    const double expectedValue = 0.12;
+    const displayPrices expected{{" ", expectedValue}};
     EXPECT_EQ(service.getPriceTable(unimportantDate), expected);
 }
 
@@ -41,8 +43,9 @@ TEST_F(priceServiceTest, returnMeanIfAvailable) {
     const double meanPrice = 32.32;
     const energyPricesTable input{{" ", 43, 123.23, meanPrice}};
     ON_CALL(provider, getPrices).WillByDefault(::testing::Return(input));
-    const displayPrices expected{{" ", meanPrice}};
 
+    const  double expectedValue = 0.03;
+    const displayPrices expected{{" ", expectedValue}};
     EXPECT_EQ(service.getPriceTable(unimportantDate), expected);
 }
 
@@ -68,4 +71,56 @@ TEST_F(priceServiceTest, timeFormatLastHour) {
     auto restult = service.getPriceTable(unimportantDate);
     ASSERT_EQ(restult.size(), 1);
     EXPECT_EQ(restult.at(0).time, expectedTime);
+}
+
+TEST_F(priceServiceTest, price_for_kWh_positiveValue) {
+    const double positiveValue = 126.5;
+    const std::string time = "H24";
+    const energyPricesTable input{{time , positiveValue, positiveValue, positiveValue}};
+    ON_CALL(provider, getPrices).WillByDefault(::testing::Return(input));
+
+
+    const double expectedValue = 0.13;
+    auto restult = service.getPriceTable(unimportantDate);
+    ASSERT_EQ(restult.size(), 1);
+    EXPECT_EQ(restult.at(0).price, expectedValue);
+}
+
+TEST_F(priceServiceTest, price_for_kWh_positiveValue_2) {
+    const double positiveValue = 1923.5;
+    const std::string time = "H24";
+    const energyPricesTable input{{time , positiveValue, positiveValue, positiveValue}};
+    ON_CALL(provider, getPrices).WillByDefault(::testing::Return(input));
+
+
+    const double expectedValue = 1.92;
+    auto restult = service.getPriceTable(unimportantDate);
+    ASSERT_EQ(restult.size(), 1);
+    EXPECT_EQ(restult.at(0).price, expectedValue);
+}
+
+TEST_F(priceServiceTest, price_for_kWh_negativeValue) {
+    const double value = -32.52;
+    const std::string time = "H24";
+    const energyPricesTable input{{time , value, value, value}};
+    ON_CALL(provider, getPrices).WillByDefault(::testing::Return(input));
+
+
+    const double expectedValue = -.03;
+    auto restult = service.getPriceTable(unimportantDate);
+    ASSERT_EQ(restult.size(), 1);
+    EXPECT_EQ(restult.at(0).price, expectedValue);
+}
+
+TEST_F(priceServiceTest, price_for_kWh_null) {
+    const double value = .0;
+    const std::string time = "H24";
+    const energyPricesTable input{{time , value, value, value}};
+    ON_CALL(provider, getPrices).WillByDefault(::testing::Return(input));
+
+
+    const double expectedValue = 0.;
+    auto restult = service.getPriceTable(unimportantDate);
+    ASSERT_EQ(restult.size(), 1);
+    EXPECT_EQ(restult.at(0).price, expectedValue);
 }

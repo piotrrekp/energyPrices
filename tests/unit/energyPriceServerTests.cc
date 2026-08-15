@@ -37,8 +37,8 @@ TEST(energyPricesServer, returnsPricesAsJson) {
     ASSERT_EQ(json["prices"].size(), 2);
 
     EXPECT_EQ(json["prices"][0]["time"].s(), "00:00 - 01:00");
-    EXPECT_DOUBLE_EQ(json["prices"][0]["price"].d(), 123.45);
+    EXPECT_DOUBLE_EQ(json["prices"][0]["price"].d(), 0.12);
 
     EXPECT_EQ(json["prices"][1]["time"].s(), "01:00 - 02:00");
-    EXPECT_DOUBLE_EQ(json["prices"][1]["price"].d(), 234.56);
+    EXPECT_DOUBLE_EQ(json["prices"][1]["price"].d(), 0.23);
 }

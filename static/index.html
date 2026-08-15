@@ -20,7 +20,7 @@
             <thead>
                 <tr>
                     <th>Godzina</th>
-                    <th>Cena [PLN/MWh]</th>
+                    <th>Cena [PLN/kWh]</th>
                 </tr>
             </thead>
 
@@ -39,7 +39,7 @@
 
 				row.innerHTML = `
 					<td>${price.time}</td>
-					<td>${price.price}</td>
+                                        <td>${price.price.toFixed(2)}</td>
 				`;
 
 				table.appendChild(row);

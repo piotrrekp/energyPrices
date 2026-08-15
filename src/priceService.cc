@@ -1,10 +1,11 @@
 #include "priceService.h"
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 
 priceService::priceService(priceProvider &_provider) : provider(_provider) {}
 
-displayPrices priceService::getPriceTable([[maybe_unused]]const energyPricesTable &table) {
+displayPrices priceService::getPriceTable(const energyPricesTable &table) {
 	if (table.empty()) {
 		return {};
 	}
@@ -12,14 +13,7 @@ displayPrices priceService::getPriceTable([[maybe_unused]]const energyPricesTabl
 	for (const auto &row : table) {
 		displayPrice price;
 		price.time = formateTimePeriod(row.time);
-		if (row.meanPrice) {
-			price.price = row.meanPrice;
-		} else if (row.fixing2) {
-			price.price = row.fixing2;
-		} else {
-			price.price = row.fixing1;
-		}
-
+		price.price = getPrice(row);
 		prices.push_back(price);
 	}
 	return prices;
@@ -41,3 +35,25 @@ std::string priceService::formateTimePeriod(std::string_view time) {
 
 	return ss.str();
 }
+
+std::optional<double> priceService::getPrice(const EnergyPrice &row) {
+	std::optional<double> value;
+	if (row.meanPrice) {
+		value = row.meanPrice;
+	} else if (row.fixing2) {
+		value = row.fixing2;
+	} else {
+		value = row.fixing1;
+	}
+
+	if (value) {
+		return convertToKWh(*value);
+	}
+	return std::nullopt;
+}
+
+double priceService::convertToKWh(const double pricePerMWh) {
+	return std::round (pricePerMWh / 10.) / 100.;
+
+}
+
