@@ -16,8 +16,10 @@ private:
 	void routeToPricesTomorrow();
 	void routeToPricesToday();
 	displayPrices getPrices(const std::chrono::year_month_day date);
+        crow::json::wvalue extracted(crow::json::wvalue &response);
+        crow::json::wvalue prepareResponse(const displayPrices &prices);
 
-	crow::SimpleApp &app;
+        crow::SimpleApp &app;
 	priceService &pricesService;
 };
 

@@ -6,8 +6,6 @@
 
 class tgeUrlBuilder {
 public:
-	std::string getUrlForTomorrow();
-	std::string getUrlForToday();
 	std::string getUrlForDate(const std::chrono::year_month_day forDate);
 };
 

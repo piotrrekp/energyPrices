@@ -15,17 +15,3 @@ std::string tgeUrlBuilder::getUrlForDate(const std::chrono::year_month_day forDa
 		<< static_cast<int>(day.year());
 	return ss.str();
 }
-
-std::string tgeUrlBuilder::getUrlForTomorrow() {
-        std::chrono::year_month_day date{
-		std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
-	std::chrono::year_month_day day{std::chrono::sys_days{date} + std::chrono::days{1}};
-
-	return getUrlForDate(day);
-}
-
-std::string tgeUrlBuilder::getUrlForToday() {
-        std::chrono::year_month_day date{
-		std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
-	return getUrlForDate(date);
-}

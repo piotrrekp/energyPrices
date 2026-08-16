@@ -1,5 +1,7 @@
 #include "energyPricesServer.h"
 
+#include <iomanip>
+
 constexpr std::string_view IndexPage = "static/index.html";
 
 energyPricesServer::energyPricesServer(crow::SimpleApp &_app, priceService &service) : app{_app}, pricesService{service} {
@@ -26,42 +28,39 @@ void energyPricesServer::routeToIndex() {
 
 void energyPricesServer::routeToPricesTomorrow() {
 	CROW_ROUTE(app, "/api/prices/tomorrow")([this](){
-		crow::json::wvalue response;
-		std::size_t i = 0;
-
 		std::chrono::year_month_day date{
 			std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
 		std::chrono::year_month_day day{std::chrono::sys_days{date} + std::chrono::days{1}};
 
 		auto prices = this->getPrices(day);
-		for (const auto &x : prices) {
-			response["prices"][i]["time"] = x.time;
-			response["prices"][i++]["price"] = x.price.value();
-
-		}
-		return response;
+		return prepareResponse(prices);
 	});
 }
 
 void energyPricesServer::routeToPricesToday() {
 	CROW_ROUTE(app, "/api/prices/today")([this](){
-		crow::json::wvalue response;
-		std::size_t i = 0;
-
 		std::chrono::year_month_day date{
 			std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
 
 		auto prices = this->getPrices(date);
-		for (const auto &x : prices) {
-			response["prices"][i]["time"] = x.time;
-			response["prices"][i++]["price"] = x.price.value();
-
-		}
-		return response;
+		return prepareResponse(prices);
 	});
 }
 
-#include <iomanip>
+crow::json::wvalue energyPricesServer::prepareResponse(const displayPrices &prices) {
+		crow::json::wvalue response;
+		std::size_t i = 0;
+		for (const auto &x : prices) {
+			response["prices"][i]["time"] = x.time;
+			if (x.price) {
+				response["prices"][i++]["price"] =  *x.price;
+			} else {
+				response["prices"][i++]["price"] = nullptr;
+			}
+		}
+		return response;
+}
+
 displayPrices energyPricesServer::getPrices(const std::chrono::year_month_day date) {
 	std::cout << __PRETTY_FUNCTION__ << " -> for date " <<
 		static_cast<int>(date.year()) << '-'

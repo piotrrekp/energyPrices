@@ -2,7 +2,6 @@
 
 ## NOW
 
-- [ ] Obsługa braku danych dla jutra
 - [ ] Prezentacja daty
 - [ ] Wyszczególnienie aktualnej godziny
 
@@ -42,3 +41,4 @@
 - [x] Pobieranie JSON przez frontend
 - [x] Wyświetlanie rzeczywistych cen
 - [x] Formatowanie daty w tabelce i zakresu czasu + wyświetlanie dzisiaj/jutro
+- [x] Obsługa braku danych dla jutra
