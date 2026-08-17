@@ -1,92 +1,689 @@
 <!doctype html>
 <html lang="pl">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
-    >
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceny energii</title>
+
     <style>
-        .day-selector {
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        .ceny-app {
+            min-height: 100vh;
+            background: #f1f3f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                         system-ui, sans-serif;
+            color: #111318;
+        }
+
+        .ceny-container {
+            max-width: 420px;
+            margin: 0 auto;
+            padding: 2.5rem 1rem 5rem;
+        }
+
+        /* Header */
+
+        .ceny-header {
+            margin-bottom: 1.75rem;
+        }
+
+        .ceny-eyebrow {
+            margin: 0 0 0.375rem;
+            font-size: 0.625rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .ceny-date {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 600;
+        }
+
+        /* Today / tomorrow */
+
+        .ceny-switcher {
+            display: inline-flex;
+            gap: 0.25rem;
+            background: #e4e6ea;
+            border-radius: 0.75rem;
+            padding: 0.25rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .ceny-switcher-btn {
+            padding: 0.375rem 1rem;
+            border-radius: 0.55rem;
+            border: none;
+            font-size: 0.875rem;
+            cursor: pointer;
+            background: transparent;
+            color: #6b7280;
+        }
+
+        .ceny-switcher-btn.active {
+            background: white;
+            color: #111318;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Main price card */
+
+        .ceny-price-card {
+            border-radius: 1.125rem;
+            border: 1px solid #bbf7d0;
+            background: #f0fdf4;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .ceny-card-top {
             display: flex;
-            justify-content: center;
-            gap: 1rem;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.375rem;
+        }
+
+        .ceny-card-sublabel {
+            margin: 0 0 0.3rem;
+            font-size: 0.625rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .ceny-card-period {
+            margin: 0;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .ceny-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            border: 1px solid #bbf7d0;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            color: #15803d;
+            background: #dcfce7;
+        }
+
+        .ceny-badge-dot {
+            width: 0.375rem;
+            height: 0.375rem;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+
+        .ceny-big-price {
+            display: flex;
+            align-items: baseline;
+        }
+
+        .ceny-big-number {
+            font-size: 3.25rem;
+            font-weight: 300;
+            line-height: 1;
+            font-family: "SF Mono", Consolas, Monaco, monospace;
+        }
+
+        .ceny-big-unit {
+            margin-left: 0.5rem;
+            font-size: 1rem;
+            color: #6b7280;
+        }
+
+        /* Generic cards */
+
+        .ceny-section-label {
+            margin: 0 0 0.5rem 0.125rem;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #6b7280;
+        }
+
+        .ceny-card {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.07);
+            border-radius: 1.125rem;
+            overflow: hidden;
+        }
+
+        /* Upcoming prices */
+
+        .ceny-row-list {
+            margin-bottom: 1.5rem;
+        }
+
+        .ceny-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+        }
+
+        .ceny-row + .ceny-row {
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .ceny-row-left {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+
+        .ceny-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            background: #9ca3af;
+        }
+
+        .ceny-row-time {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .ceny-row-price {
+            font-size: 0.875rem;
+            font-weight: 500;
+            font-family: "SF Mono", Consolas, Monaco, monospace;
+        }
+
+        /* Min / max */
+
+        .ceny-minmax-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .ceny-minmax-card {
+            border-radius: 1.125rem;
+            border: 1px solid;
+            padding: 1rem;
+        }
+
+        .cheap-card {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        .expensive-card {
+            background: #fff7ed;
+            border-color: #fed7aa;
+            color: #9a3412;
+        }
+
+        .ceny-minmax-label {
+            margin: 0 0 0.75rem;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .ceny-minmax-number {
+            margin: 0;
+            font-size: 1.35rem;
+            font-weight: 300;
+            font-family: "SF Mono", Consolas, Monaco, monospace;
+        }
+
+        .ceny-minmax-unit {
+            margin: 0 0 0.625rem;
+            font-size: 0.6875rem;
+        }
+
+        .ceny-minmax-period {
+            margin: 0;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Full table */
+
+        .ceny-expand-btn {
+            width: 100%;
+            padding: 0.8125rem 1rem;
+            border-radius: 1.125rem;
+            border: 1px solid rgba(0, 0, 0, 0.07);
+            background: white;
+            font-size: 0.875rem;
+            cursor: pointer;
             margin-bottom: 1rem;
         }
-    </style>
 
-    <title>Ceny energii</title>
+        .ceny-full-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.625rem 1rem;
+        }
+
+        .ceny-full-row + .ceny-full-row {
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .ceny-full-row.is-now {
+            background: #eef0f3;
+            font-weight: 500;
+        }
+
+        .ceny-full-time {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .ceny-full-price {
+            font-size: 0.875rem;
+            font-family: "SF Mono", Consolas, Monaco, monospace;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
 
-    <main class="container">
-        <div class="day-selector">
-            <button id="todayButton">Dzisiaj</button>
-            <button id="tomorrowButton">Jutro</button>
+<div class="ceny-app">
+    <main class="ceny-container">
+
+        <header class="ceny-header">
+            <p class="ceny-eyebrow">Ceny energii</p>
+            <h1 id="display-date" class="ceny-date"></h1>
+        </header>
+
+        <div class="ceny-switcher">
+            <button id="today-button"
+                    class="ceny-switcher-btn active">
+                Dzisiaj
+            </button>
+
+            <button id="tomorrow-button"
+                    class="ceny-switcher-btn">
+                Jutro
+            </button>
         </div>
 
-        <h1>Ceny energii</h1>
+        <section id="main-price-card"
+                 class="ceny-price-card">
+        </section>
 
+        <p id="upcoming-label"
+           class="ceny-section-label">
+            Najbliższe godziny
+        </p>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Godzina</th>
-                    <th>Cena [PLN/kWh]</th>
-                </tr>
-            </thead>
+        <section id="upcoming"
+                 class="ceny-card ceny-row-list">
+        </section>
 
-            <tbody id="prices">
-            </tbody>
-        </table>
+        <!-- Na razie MOCK -->
+
+        <!-- <p class="ceny-section-label">Dziś</p> -->
+
+        <section class="ceny-minmax-grid">
+
+            <div class="ceny-minmax-card cheap-card">
+                <p class="ceny-minmax-label">Najtaniej</p>
+                <p class="ceny-minmax-number">0,31</p>
+                <p class="ceny-minmax-unit">zł/kWh</p>
+                <p class="ceny-minmax-period">13:00 - 14:00</p>
+            </div>
+
+            <div class="ceny-minmax-card expensive-card">
+                <p class="ceny-minmax-label">Najdrożej</p>
+                <p class="ceny-minmax-number">0,92</p>
+                <p class="ceny-minmax-unit">zł/kWh</p>
+                <p class="ceny-minmax-period">19:00 - 20:00</p>
+            </div>
+
+        </section>
+
+        <button id="expand-button"
+                class="ceny-expand-btn">
+            Pokaż cały dzień
+        </button>
+
+        <section id="full-day"
+                 class="ceny-card hidden">
+        </section>
+
     </main>
+</div>
+
 <script>
-    fetch("/api/prices/tomorrow")
-            .then(response => response.json())
-            .then(data => {
-                    const table = document.getElementById("prices");
+    let activeDay = "today";
+    let prices = [];
 
-                    data.prices.forEach(price => {
-                            const row = document.createElement("tr");
+    /*
+     * Na razie świadomie MOCK.
+     * Później przyjdzie z backendu.
+     */
+    const mockStatus = {
+        name: "TANIA"
+    };
 
-                            row.innerHTML = `
-                                    <td>${price.time}</td>
-                                    <td>${price.price.toFixed(2)}</td>
-                            `;
+    function formatPrice(price) {
+        /*
+         * Dzięki temu zarówno null, jak i np. {} zwrócone przez Crow
+         * potraktujemy jako brak ceny.
+         */
+        if (typeof price !== "number") {
+            return "—";
+        }
 
-                            table.appendChild(row);
-                    });
-            });
+        return price
+            .toFixed(2)
+            .replace(".", ",");
+    }
+
+    function formatFullPrice(price) {
+        const value = formatPrice(price);
+
+        if (value === "—") {
+            return value;
+        }
+
+        return `${value} zł/kWh`;
+    }
+
+    function displayDate(day) {
+        const date = new Date();
+
+        if (day === "tomorrow") {
+            date.setDate(date.getDate() + 1);
+        }
+
+        let text = new Intl.DateTimeFormat(
+            "pl-PL",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long"
+            }
+        ).format(date);
+
+        text = text.charAt(0).toUpperCase() + text.slice(1);
+
+        document.getElementById("display-date").textContent = text;
+    }
+
+    function currentPriceIndex() {
+        if (activeDay !== "today") {
+            return 0;
+        }
+
+        const hour =
+            String(new Date().getHours()).padStart(2, "0");
+
+        return prices.findIndex(entry =>
+            typeof entry.time === "string" &&
+            entry.time.startsWith(`${hour}:00`)
+        );
+    }
+
+function renderMainPrice() {
+    const container =
+        document.getElementById("main-price-card");
+
+    if (activeDay === "tomorrow") {
+        container.classList.add("hidden");
+        return;
+    }
+
+    container.classList.remove("hidden");
+
+    if (prices.length === 0) {
+        container.innerHTML = `
+            <p class="ceny-card-sublabel">
+                Brak danych
+            </p>
+
+            <div class="ceny-big-price">
+                <span class="ceny-big-number">—</span>
+            </div>
+        `;
+
+        return;
+    }
+
+    const index = currentPriceIndex();
+    const entry = prices[index >= 0 ? index : 0];
+
+    container.innerHTML = `
+        <div class="ceny-card-top">
+
+            <div>
+                <p class="ceny-card-sublabel">
+                    Teraz
+                </p>
+
+                <p class="ceny-card-period">
+                    ${entry.time}
+                </p>
+            </div>
+
+            <span class="ceny-badge">
+                <span class="ceny-badge-dot"></span>
+                ${mockStatus.name}
+            </span>
+
+        </div>
+
+        <div class="ceny-big-price">
+            <span class="ceny-big-number">
+                ${formatPrice(entry.price)}
+            </span>
+
+            <span class="ceny-big-unit">
+                zł/kWh
+            </span>
+        </div>
+    `;
+}
+
+    function renderUpcoming() {
+        const container =
+            document.getElementById("upcoming");
+
+        const label =
+            document.getElementById("upcoming-label");
+
+        if (activeDay === "tomorrow") {
+            container.classList.add("hidden");
+            label.classList.add("hidden");
+            return;
+        }
+
+        container.classList.remove("hidden");
+        label.classList.remove("hidden");
+
+        const currentIndex = currentPriceIndex();
+
+        const entries = prices.slice(
+            currentIndex + 1,
+            currentIndex + 5
+        );
+
+        if (entries.length === 0) {
+            container.innerHTML =
+                `<div class="ceny-row">Brak dalszych danych</div>`;
+            return;
+        }
+
+        container.innerHTML =
+            entries.map(entry => `
+                <div class="ceny-row">
+
+                    <div class="ceny-row-left">
+                        <span class="ceny-dot"></span>
+
+                        <span class="ceny-row-time">
+                            ${entry.time}
+                        </span>
+                    </div>
+
+                    <span class="ceny-row-price">
+                        ${formatFullPrice(entry.price)}
+                    </span>
+
+                </div>
+            `).join("");
+    }
+
+    function renderFullDay() {
+        const container =
+            document.getElementById("full-day");
+
+        const nowIndex = currentPriceIndex();
+
+        container.innerHTML =
+            prices.map((entry, index) => {
+
+                const isNow =
+                    activeDay === "today" &&
+                    index === nowIndex;
+
+                return `
+                    <div class="
+                        ceny-full-row
+                        ${isNow ? "is-now" : ""}
+                    ">
+
+                        <span class="ceny-full-time">
+                            ${entry.time}
+                        </span>
+
+                        <span class="ceny-full-price">
+                            ${formatFullPrice(entry.price)}
+                        </span>
+
+                    </div>
+                `;
+            }).join("");
+    }
+
+    function render() {
+        displayDate(activeDay);
+        renderMainPrice();
+        renderUpcoming();
+        renderFullDay();
+    }
 
     async function loadPrices(day) {
-        const response = await fetch(`/api/prices/${day}`);
-        const prices = await response.json();
+        try {
+            const response =
+                await fetch(`/api/prices/${day}`);
 
-        const table = document.getElementById("prices");
-        table.innerHTML = "";
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP error: ${response.status}`
+                );
+            }
 
-        for (const price of prices.prices) {
-            const row = document.createElement("tr");
+            const data = await response.json();
 
-            row.innerHTML = `
-                <td>${price.time}</td>
-                <td>${price.price?.toFixed(2) ?? "-"}</td>
-            `;
+            prices =
+                Array.isArray(data.prices)
+                    ? data.prices
+                    : [];
 
-            table.appendChild(row);
+            render();
+
+        } catch (error) {
+            console.error(
+                "Nie udało się pobrać cen:",
+                error
+            );
+
+            prices = [];
+            render();
         }
     }
 
-document
-    .getElementById("todayButton")
-    .addEventListener("click", () => loadPrices("today"));
+    function switchDay(day) {
+        activeDay = day;
 
-document
-    .getElementById("tomorrowButton")
-    .addEventListener("click", () => loadPrices("tomorrow"));
+        document
+            .getElementById("today-button")
+            .classList.toggle(
+                "active",
+                day === "today"
+            );
+
+        document
+            .getElementById("tomorrow-button")
+            .classList.toggle(
+                "active",
+                day === "tomorrow"
+            );
+
+        document
+            .getElementById("full-day")
+            .classList.add("hidden");
+
+        document
+            .getElementById("expand-button")
+            .textContent = "Pokaż cały dzień";
+
+        loadPrices(day);
+    }
+
+    document
+        .getElementById("today-button")
+        .addEventListener(
+            "click",
+            () => switchDay("today")
+        );
+
+    document
+        .getElementById("tomorrow-button")
+        .addEventListener(
+            "click",
+            () => switchDay("tomorrow")
+        );
+
+    document
+        .getElementById("expand-button")
+        .addEventListener(
+            "click",
+            function () {
+
+                const fullDay =
+                    document.getElementById("full-day");
+
+                const hidden =
+                    fullDay.classList.toggle("hidden");
+
+                this.textContent =
+                    hidden
+                        ? "Pokaż cały dzień"
+                        : "Ukryj cały dzień";
+            }
+        );
+
+    loadPrices("today");
 </script>
+
 </body>
 </html>

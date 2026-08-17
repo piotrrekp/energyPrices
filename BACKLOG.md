@@ -2,17 +2,13 @@
 
 ## NOW
 
-- [ ] Prezentacja daty
-- [ ] Wyszczególnienie aktualnej godziny
+- [ ] Min/max dnia
+- [ ] Rozróżnienie taniej/drogiej dystrybucji
+- [ ] Walidacja daty cen na jutro - czy jutro rzeczywiscie jest jutro
 
 ## NEXT
 
-- [ ] Poprawa wyglądu strony
 - [ ] Testy PriceService
-- [ ] Test endpointu /api/prices/tomorrow
-- [ ] Obsługa błędów pobierania TGE
-- [ ] Wyświetlanie informacji o dacie danych na stronie
-- [ ] Rozróżnienie taniej/drogiej dystrybucji
 
 ## LATER
 
@@ -20,7 +16,6 @@
 - [ ] Zapisywanie pobranych cen
 - [ ] Historia cen
 - [ ] Wykres historii cen
-- [ ] Taryfa dystrybucyjna: tania/droga godzina
 - [ ] Automatyczne okresowe pobieranie danych
 - [ ] API dla konkretnej daty
 - [ ] Frontend mobile / Qt Android
@@ -42,3 +37,8 @@
 - [x] Wyświetlanie rzeczywistych cen
 - [x] Formatowanie daty w tabelce i zakresu czasu + wyświetlanie dzisiaj/jutro
 - [x] Obsługa braku danych dla jutra
+- [x] Prezentacja daty
+- [x] Wyszczególnienie aktualnej godziny
+- [x] Poprawa wyglądu strony
+- [x] Obsługa błędów pobierania TGE
+- [x] Wyświetlanie informacji o dacie danych na stroni
