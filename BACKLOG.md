@@ -9,6 +9,7 @@
 ## NEXT
 
 - [ ] Testy PriceService
+- [ ] do ceny min/max dodać wyświetlanie godziny w jakiej cena występuje.
 
 ## LATER
 

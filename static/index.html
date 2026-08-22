@@ -7,6 +7,58 @@
     <title>Ceny energii</title>
 
     <style>
+        :root {
+            color-scheme: light dark;
+
+            --bg: #f1f3f5;
+            --card: #ffffff;
+            --text: #111318;
+            --muted: #6b7280;
+            --switcher: #e4e6ea;
+            --border: rgba(0, 0, 0, 0.07);
+            --separator: rgba(0, 0, 0, 0.06);
+            --current-row: #eef0f3;
+
+            --cheap-bg: #f0fdf4;
+            --cheap-border: #bbf7d0;
+            --cheap-text: #166534;
+
+            --expensive-bg: #fff7ed;
+            --expensive-border: #fed7aa;
+            --expensive-text: #9a3412;
+
+            --badge-bg: #dcfce7;
+            --badge-border: #bbf7d0;
+            --badge-text: #15803d;
+            --badge-dot: #22c55e;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #111318;
+                --card: #1c1f24;
+                --text: #f3f4f6;
+                --muted: #9ca3af;
+                --switcher: #272a30;
+                --border: rgba(255, 255, 255, 0.08);
+                --separator: rgba(255, 255, 255, 0.07);
+                --current-row: #292d33;
+
+                --cheap-bg: #13251b;
+                --cheap-border: #245b38;
+                --cheap-text: #86efac;
+
+                --expensive-bg: #2a1c12;
+                --expensive-border: #7c3f18;
+                --expensive-text: #fdba74;
+
+                --badge-bg: #173322;
+                --badge-border: #245b38;
+                --badge-text: #86efac;
+                --badge-dot: #4ade80;
+            }
+        }
+
         * {
             box-sizing: border-box;
         }
@@ -17,10 +69,10 @@
 
         .ceny-app {
             min-height: 100vh;
-            background: #f1f3f5;
+            background: var(--bg);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
                          system-ui, sans-serif;
-            color: #111318;
+            color: var(--text);
         }
 
         .ceny-container {
@@ -41,7 +93,7 @@
             font-weight: 700;
             letter-spacing: 0.14em;
             text-transform: uppercase;
-            color: #6b7280;
+            color: var(--muted);
         }
 
         .ceny-date {
@@ -55,7 +107,7 @@
         .ceny-switcher {
             display: inline-flex;
             gap: 0.25rem;
-            background: #e4e6ea;
+            background: var(--switcher);
             border-radius: 0.75rem;
             padding: 0.25rem;
             margin-bottom: 1.75rem;
@@ -68,12 +120,12 @@
             font-size: 0.875rem;
             cursor: pointer;
             background: transparent;
-            color: #6b7280;
+            color: var(--muted);
         }
 
         .ceny-switcher-btn.active {
-            background: white;
-            color: #111318;
+            background: var(--card);
+            color: var(--text);
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
         }
 
@@ -81,8 +133,8 @@
 
         .ceny-price-card {
             border-radius: 1.125rem;
-            border: 1px solid #bbf7d0;
-            background: #f0fdf4;
+            border: 1px solid var(--cheap-border);
+            background: var(--cheap-bg);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
         }
@@ -100,13 +152,13 @@
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: #6b7280;
+            color: var(--muted);
         }
 
         .ceny-card-period {
             margin: 0;
             font-size: 0.875rem;
-            color: #6b7280;
+            color: var(--muted);
         }
 
         .ceny-badge {
@@ -115,18 +167,18 @@
             gap: 0.375rem;
             padding: 0.25rem 0.6rem;
             border-radius: 999px;
-            border: 1px solid #bbf7d0;
+            border: 1px solid var(--badge-border);
             font-size: 0.6875rem;
             font-weight: 700;
-            color: #15803d;
-            background: #dcfce7;
+            color: var(--badge-text);
+            background: var(--badge-bg);
         }
 
         .ceny-badge-dot {
             width: 0.375rem;
             height: 0.375rem;
             border-radius: 50%;
-            background: #22c55e;
+            background: var(--badge-dot);
         }
 
         .ceny-big-price {
@@ -144,7 +196,7 @@
         .ceny-big-unit {
             margin-left: 0.5rem;
             font-size: 1rem;
-            color: #6b7280;
+            color: var(--muted);
         }
 
         /* Generic cards */
@@ -155,12 +207,12 @@
             font-weight: 700;
             letter-spacing: 0.09em;
             text-transform: uppercase;
-            color: #6b7280;
+            color: var(--muted);
         }
 
         .ceny-card {
-            background: white;
-            border: 1px solid rgba(0, 0, 0, 0.07);
+            background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 1.125rem;
             overflow: hidden;
         }
@@ -179,7 +231,7 @@
         }
 
         .ceny-row + .ceny-row {
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            border-top: 1px solid var(--separator);
         }
 
         .ceny-row-left {
@@ -197,7 +249,7 @@
 
         .ceny-row-time {
             font-size: 0.875rem;
-            color: #6b7280;
+            color: var(--muted);
         }
 
         .ceny-row-price {
@@ -222,15 +274,15 @@
         }
 
         .cheap-card {
-            background: #f0fdf4;
-            border-color: #bbf7d0;
-            color: #166534;
+            background: var(--cheap-bg);
+            border-color: var(--cheap-border);
+            color: var(--cheap-text);
         }
 
         .expensive-card {
-            background: #fff7ed;
-            border-color: #fed7aa;
-            color: #9a3412;
+            background: var(--expensive-bg);
+            border-color: var(--expensive-border);
+            color: var(--expensive-text);
         }
 
         .ceny-minmax-label {
@@ -264,8 +316,8 @@
             width: 100%;
             padding: 0.8125rem 1rem;
             border-radius: 1.125rem;
-            border: 1px solid rgba(0, 0, 0, 0.07);
-            background: white;
+            border: 1px solid var(--border);
+            background: var(--card);
             font-size: 0.875rem;
             cursor: pointer;
             margin-bottom: 1rem;
@@ -278,17 +330,17 @@
         }
 
         .ceny-full-row + .ceny-full-row {
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            border-top: 1px solid var(--separator);
         }
 
         .ceny-full-row.is-now {
-            background: #eef0f3;
+            background: var(--current-row);
             font-weight: 500;
         }
 
         .ceny-full-time {
             font-size: 0.875rem;
-            color: #6b7280;
+            color: var(--muted);
         }
 
         .ceny-full-price {
