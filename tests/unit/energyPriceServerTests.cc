@@ -8,8 +8,9 @@ TEST(energyPricesServer, returnsPricesAsJson) {
     testing::NiceMock<mockPriceProvider> provider;
 
     const energyPricesTable input{
-        {"00:00 - 01:00", 123.45, std::nullopt, std::nullopt},
-        {"01:00 - 02:00", 234.56, std::nullopt, std::nullopt},
+        std::chrono::year_month_day{},
+        {{"00:00 - 01:00", 123.45, std::nullopt, std::nullopt},
+        {"01:00 - 02:00", 234.56, std::nullopt, std::nullopt}}
     };
 
     EXPECT_CALL(provider, getPrices(testing::Truly(
@@ -77,8 +78,9 @@ TEST(energyPricesServer, returnsTodayPricesAsJson) {
     testing::NiceMock<mockPriceProvider> provider;
 
     const energyPricesTable input{
-        {"00:00 - 01:00", 345.67, std::nullopt, std::nullopt},
-        {"01:00 - 02:00", 456.78, std::nullopt, std::nullopt},
+        std::chrono::year_month_day{},
+        {{"00:00 - 01:00", 345.67, std::nullopt, std::nullopt},
+        {"01:00 - 02:00", 456.78, std::nullopt, std::nullopt}},
     };
 
 	EXPECT_CALL(provider, getPrices(testing::Truly(
@@ -119,16 +121,12 @@ TEST(energyPricesServer, returnsTodayPricesAsJson) {
     EXPECT_DOUBLE_EQ(json["prices"][1]["price"].d(), 0.46);
 }
 
-TEST(energyPricesServer, handlesMissingPrice) {
+TEST(energyPricesServer, handleMissingPrice) {
     testing::NiceMock<mockPriceProvider> provider;
 
     const energyPricesTable input{
-        {
-            "2026-08-17_H01",
-            std::nullopt,
-            std::nullopt,
-            std::nullopt
-        }
+        std::chrono::year_month_day{},
+        {{"2026-08-17_H01", std::nullopt, std::nullopt, std::nullopt}}
     };
 
     ON_CALL(provider, getPrices)

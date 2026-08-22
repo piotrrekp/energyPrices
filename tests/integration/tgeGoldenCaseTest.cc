@@ -10,7 +10,8 @@ TEST(TgeParserIntegration, parsesHourlyPricesFromGoldenCase) {
 		loadFile(std::string(TEST_DATA_DIR) + "/tgeGoldenCase.html");
 
 	const energyPricesTable expected{
-		{"2026-07-18_H01", 669.04, 679.53, 671.62},
+		std::chrono::year_month_day{},
+		{{"2026-07-18_H01", 669.04, 679.53, 671.62},
 		{"2026-07-18_H02", 615.00, 631.88, 621.20},
 		{"2026-07-18_H03", 590.00, 617.83, 597.74},
 		{"2026-07-18_H04", 560.04, 588.68, 568.26},
@@ -33,7 +34,7 @@ TEST(TgeParserIntegration, parsesHourlyPricesFromGoldenCase) {
 		{"2026-07-18_H21", 774.63, 850.93, 801.36},
 		{"2026-07-18_H22", 760.43, 759.91, 761.09},
 		{"2026-07-18_H23", 680.20, 690.97, 684.09},
-		{"2026-07-18_H24", 627.85, 644.87, 634.39},
+		{"2026-07-18_H24", 627.85, 644.87, 634.39}}
 	};
 
 	const TgeParser parser;
@@ -48,7 +49,7 @@ TEST(TgeParserIntegration, skipsRowWithMissingColumns) {
 		loadFile(std::string(TEST_DATA_DIR) + "/tgeMissionPrices.html");
 
 	const TgeParser parser;
-	const auto prices = parser.parseEnergyPricesTable(html);
+	const auto prices = parser.parseEnergyPricesTable(html).second;
 
 	ASSERT_EQ(prices.size(), 3);
 	EXPECT_EQ(prices[0].time, "2026-07-18_H01");
@@ -66,7 +67,7 @@ TEST(TgeParserIntegration, getTableFromSite) {
 	auto page = client.getPage();
 
 	TgeParser parser;
-	auto table = parser.parseEnergyPricesTable(page);
+	auto table = parser.parseEnergyPricesTable(page).second;
 	const std::vector<EnergyPrice> expected{
 		{"2026-08-08_H01", 699.86, 671.39, 693.18},
 		{"2026-08-08_H02", 668.01, 643.19, 662.94},

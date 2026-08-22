@@ -1,5 +1,7 @@
 #pragma once
 
+#include "stringUtils.h"
+#include <chrono>
 #include <vector>
 #include <string>
 #include <ostream>
@@ -12,8 +14,6 @@ struct EnergyPrice {
 	std::optional<double> fixing2;
 	std::optional<double> meanPrice;
 
-	// EnergyPrice(): time("00:00_H00"), fixing1(std::nullopt), fixing2(std::nullopt), meanPrice(std::nullopt) {}
-	// EnergyPrice(std::string t, double f1, double f2, double mean): time(t), fixing1(f1), fixing2(f2), meanPrice(mean) {}
 	bool operator==(const EnergyPrice &) const = default;
 
 	std::ostream &printOptional(std::ostream &out, const std::optional<double> &value) {
@@ -26,7 +26,6 @@ struct EnergyPrice {
 	}
 
 	friend std::ostream& operator<<(std::ostream &out, const EnergyPrice &price) {
-
 		return out << "{" << price.time << " : "
 			<< (price.fixing1.has_value() ? std::to_string(price.fixing1.value()) : std::string(" - ")) << ", "
 			<< (price.fixing2.has_value() ? std::to_string(price.fixing2.value()) : std::string(" - ")) << ", "
@@ -35,10 +34,11 @@ struct EnergyPrice {
 	}
 };
 
-using energyPricesTable = std::vector<EnergyPrice>;
+using energyPricesTable = std::pair<std::chrono::year_month_day, std::vector<EnergyPrice>>;
 
 inline std::ostream& operator<<(std::ostream &out, const energyPricesTable &prices) {
-	for (const auto & row: prices) {
+	out << "Prices for " << stringUtils::getDate(prices.first) << std::endl;
+	for (const auto & row: prices.second) {
 		out << row << std::endl;
 	}
 

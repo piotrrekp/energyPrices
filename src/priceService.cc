@@ -5,21 +5,23 @@
 
 priceService::priceService(priceProvider &_provider) : provider(_provider) {}
 
-displayPrices priceService::getPriceTable(const energyPricesTable &table) {
-	if (table.empty()) {
-		return {};
+dailyPrices priceService::getPriceTable(const energyPricesTable &table) {
+	if (table.second.empty()) {
+		return dailyPrices(table.first, {});
 	}
-	displayPrices prices;
-	for (const auto &row : table) {
-		displayPrice price;
+
+	std::vector<hourlyPrice> allPrices;
+	for (const auto &row : table.second) {
+		hourlyPrice price;
 		price.time = formateTimePeriod(row.time);
 		price.price = getPrice(row);
-		prices.push_back(price);
+		allPrices.push_back(price);
 	}
-	return prices;
+
+	return dailyPrices(table.first, allPrices);
 }
 
-displayPrices priceService::getPriceTable(const std::chrono::year_month_day date) {
+dailyPrices priceService::getPriceTable(const std::chrono::year_month_day date) {
 	return getPriceTable(provider.getPrices(date));
 }
 

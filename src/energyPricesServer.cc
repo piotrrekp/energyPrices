@@ -47,10 +47,10 @@ void energyPricesServer::routeToPricesToday() {
 	});
 }
 
-crow::json::wvalue energyPricesServer::prepareResponse(const displayPrices &prices) {
+crow::json::wvalue energyPricesServer::prepareResponse(const dailyPrices &prices) {
 		crow::json::wvalue response;
 		std::size_t i = 0;
-		for (const auto &x : prices) {
+		for (const auto &x : prices.getPrices()) {
 			response["prices"][i]["time"] = x.time;
 			if (x.price) {
 				response["prices"][i++]["price"] =  *x.price;
@@ -61,12 +61,6 @@ crow::json::wvalue energyPricesServer::prepareResponse(const displayPrices &pric
 		return response;
 }
 
-displayPrices energyPricesServer::getPrices(const std::chrono::year_month_day date) {
-	std::cout << __PRETTY_FUNCTION__ << " -> for date " <<
-		static_cast<int>(date.year()) << '-'
-		    << std::setw(2) << std::setfill('0')
-		    << static_cast<unsigned>(date.month()) << '-'
-		    << std::setw(2)
-		    << static_cast<unsigned>(date.day()) << std::endl;
+dailyPrices energyPricesServer::getPrices(const std::chrono::year_month_day date) {
 	return pricesService.getPriceTable(date);
 }

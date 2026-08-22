@@ -1,7 +1,9 @@
 #include "stringUtils.h"
 
 #include <algorithm>
+#include <iomanip>
 #include <ranges>
+#include <sstream>
 
 
 namespace stringUtils {
@@ -47,5 +49,15 @@ namespace stringUtils {
 		} catch (const std::out_of_range &) {
 			return std::nullopt;
 		}
+	}
+
+	std::string getDate(const std::chrono::year_month_day date) {
+		std::stringstream ss;
+		ss << static_cast<int>(date.year()) << '-'
+		    << std::setw(2) << std::setfill('0')
+		    << static_cast<unsigned>(date.month()) << '-'
+		    << std::setw(2)
+		    << static_cast<unsigned>(date.day());
+		return ss.str();
 	}
 }

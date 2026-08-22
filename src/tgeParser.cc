@@ -12,7 +12,7 @@ energyPricesTable TgeParser::parseEnergyPricesTable(const std::string_view html)
 			return extractEnergyPrices(table);
 		}
 	}
-	return {{}};
+	return {{}, {}};
 }
 
 bool TgeParser::isProperTable(const RawTable &table) const {
@@ -26,7 +26,7 @@ bool TgeParser::isProperTable(const RawTable &table) const {
 	return false;
 }
 
-energyPricesTable TgeParser::extractEnergyPrices([[maybe_unused]] const RawTable &table) const {
+energyPricesTable TgeParser::extractEnergyPrices(const RawTable &table) const {
 	energyPricesTable prices{};
 	for (const auto &row : table | std::views::drop(2)) {
 		if (stringUtils::trim(row.at(1)) != "60") {
@@ -38,7 +38,7 @@ energyPricesTable TgeParser::extractEnergyPrices([[maybe_unused]] const RawTable
 		ep.fixing2 = getValue(row, 7);
 		ep.meanPrice = getValue(row, 13);
 
-		prices.push_back(ep);
+		prices.second.push_back(ep);
 	}
 
 	return prices;

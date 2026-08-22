@@ -137,10 +137,10 @@ TEST(tgeParser, getDataFromTable) {
 	)HTML";
 
 	TgeParser parser;
-	std::vector<EnergyPrice> result = parser.parseEnergyPricesTable(html);
+	auto result = parser.parseEnergyPricesTable(html);
 	const std::vector<EnergyPrice> expected = {
 		{"2026-07-18_H01", 669.04, 679.53, 671.62},
 		{"2026-07-18_H02", 615.00, 631.88, 621.20}};
 
-	EXPECT_EQ(result, expected);
+	EXPECT_EQ(result.second, expected);
 }
