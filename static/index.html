@@ -337,26 +337,8 @@
                  class="ceny-card ceny-row-list">
         </section>
 
-        <!-- Na razie MOCK -->
-
-        <!-- <p class="ceny-section-label">Dziś</p> -->
-
-        <section class="ceny-minmax-grid">
-
-            <div class="ceny-minmax-card cheap-card">
-                <p class="ceny-minmax-label">Najtaniej</p>
-                <p class="ceny-minmax-number">0,31</p>
-                <p class="ceny-minmax-unit">zł/kWh</p>
-                <p class="ceny-minmax-period">13:00 - 14:00</p>
-            </div>
-
-            <div class="ceny-minmax-card expensive-card">
-                <p class="ceny-minmax-label">Najdrożej</p>
-                <p class="ceny-minmax-number">0,92</p>
-                <p class="ceny-minmax-unit">zł/kWh</p>
-                <p class="ceny-minmax-period">19:00 - 20:00</p>
-            </div>
-
+        <section id="minmax"
+                 class="ceny-minmax-grid">
         </section>
 
         <button id="expand-button"
@@ -374,6 +356,10 @@
 <script>
     let activeDay = "today";
     let prices = [];
+    let summary = {
+        min: null,
+        max: null
+    };
 
     /*
      * Na razie świadomie MOCK.
@@ -583,10 +569,34 @@ function renderMainPrice() {
             }).join("");
     }
 
+    function renderMinMax() {
+        const container =
+            document.getElementById("minmax");
+
+        container.innerHTML = `
+            <div class="ceny-minmax-card cheap-card">
+                <p class="ceny-minmax-label">Najtaniej</p>
+                <p class="ceny-minmax-number">
+                    ${formatPrice(summary.min)}
+                </p>
+                <p class="ceny-minmax-unit">zł/kWh</p>
+            </div>
+
+            <div class="ceny-minmax-card expensive-card">
+                <p class="ceny-minmax-label">Najdrożej</p>
+                <p class="ceny-minmax-number">
+                    ${formatPrice(summary.max)}
+                </p>
+                <p class="ceny-minmax-unit">zł/kWh</p>
+            </div>
+        `;
+    }
+
     function render() {
         displayDate(activeDay);
         renderMainPrice();
         renderUpcoming();
+        renderMinMax();
         renderFullDay();
     }
 
@@ -608,6 +618,17 @@ function renderMainPrice() {
                     ? data.prices
                     : [];
 
+            summary = {
+                min:
+                    typeof data.summary?.min === "number"
+                        ? data.summary.min
+                        : null,
+                max:
+                    typeof data.summary?.max === "number"
+                        ? data.summary.max
+                        : null
+            };
+
             render();
 
         } catch (error) {
@@ -617,6 +638,10 @@ function renderMainPrice() {
             );
 
             prices = [];
+            summary = {
+                min: null,
+                max: null
+            };
             render();
         }
     }

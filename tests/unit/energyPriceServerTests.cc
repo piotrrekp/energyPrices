@@ -156,3 +156,92 @@ TEST(energyPricesServer, handleMissingPrice) {
     EXPECT_EQ(json["prices"][0]["time"].s(), "00:00 - 01:00");
     EXPECT_EQ(json["prices"][0]["price"].t(), crow::json::type::Null);
 }
+
+TEST(energyPricesServer, responseContainsDateAndSummary) {
+    testing::NiceMock<mockPriceProvider> provider;
+
+    const std::chrono::year_month_day today{
+            std::chrono::floor<std::chrono::days>(
+                    std::chrono::system_clock::now())
+    };
+    const energyPricesTable input{
+        today,
+        {{"00:00 - 01:00", 345.67, std::nullopt, std::nullopt},
+        {"01:00 - 02:00", 456.78, std::nullopt, std::nullopt}},
+    };
+
+
+    EXPECT_CALL(provider, getPrices(testing::Truly(
+            [&today](const std::chrono::year_month_day &day) {
+                    return day == today;
+            }))).WillOnce(testing::Return(input));
+
+    priceService service{provider};
+
+    crow::SimpleApp app;
+    energyPricesServer server{app, service};
+
+    crow::request request;
+    crow::response response;
+
+    request.url = "/api/prices/today";
+
+    app.validate();
+    app.handle_full(request, response);
+
+    ASSERT_EQ(response.code, 200);
+
+    const auto json = crow::json::load(response.body);
+
+    ASSERT_TRUE(json);
+
+    ASSERT_TRUE(json.has("date"));
+    EXPECT_EQ(json["date"].s(), stringUtils::getDate(today));
+
+    ASSERT_TRUE(json.has("summary"));
+    EXPECT_DOUBLE_EQ(json["summary"]["min"].d(), 0.35);
+    EXPECT_DOUBLE_EQ(json["summary"]["max"].d(), 0.46);
+}
+
+TEST(energyPricesServer, responseContainsNullSummaryWhenNoPricesAvailable) {
+    testing::NiceMock<mockPriceProvider> provider;
+
+    const std::chrono::year_month_day today{
+        std::chrono::floor<std::chrono::days>(
+            std::chrono::system_clock::now())
+    };
+
+    const energyPricesTable input{
+        today,
+        {
+            {"00:00 - 01:00", std::nullopt, std::nullopt, std::nullopt},
+            {"01:00 - 02:00", std::nullopt, std::nullopt, std::nullopt}
+        }
+    };
+
+    EXPECT_CALL(provider, getPrices(testing::_))
+        .WillOnce(testing::Return(input));
+
+    priceService service{provider};
+
+    crow::SimpleApp app;
+    energyPricesServer server{app, service};
+
+    crow::request request;
+    crow::response response;
+
+    request.url = "/api/prices/today";
+
+    app.validate();
+    app.handle_full(request, response);
+
+    ASSERT_EQ(response.code, 200);
+
+    const auto json = crow::json::load(response.body);
+
+    ASSERT_TRUE(json);
+    ASSERT_TRUE(json.has("summary"));
+
+    EXPECT_EQ(json["summary"]["min"].t(), crow::json::type::Null);
+    EXPECT_EQ(json["summary"]["max"].t(), crow::json::type::Null);
+}

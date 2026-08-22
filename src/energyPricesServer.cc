@@ -50,6 +50,11 @@ void energyPricesServer::routeToPricesToday() {
 crow::json::wvalue energyPricesServer::prepareResponse(const dailyPrices &prices) {
 		crow::json::wvalue response;
 		std::size_t i = 0;
+		response["date"] = stringUtils::getDate(prices.getDate());
+		response["summary"]["min"] = prices.getSummary().min
+			? *prices.getSummary().min : crow::json::wvalue(nullptr);
+		response["summary"]["max"] = prices.getSummary().max
+			? *prices.getSummary().max : crow::json::wvalue(nullptr);
 		for (const auto &x : prices.getPrices()) {
 			response["prices"][i]["time"] = x.time;
 			if (x.price) {
