@@ -3,7 +3,6 @@
 ## NOW
 
 - [ ] Walidacja daty cen na jutro - czy jutro rzeczywiscie jest jutro
-- [ ] Dodać CI do githuba
 - [ ] Rozróżnienie taniej/drogiej dystrybucji
 
 ## NEXT
@@ -44,3 +43,4 @@
 - [x] Obsługa błędów pobierania TGE
 - [x] Wyświetlanie informacji o dacie danych na stroni
 - [x] Min/max dnia + TESTY!!
+- [x] Dodać CI do githuba
