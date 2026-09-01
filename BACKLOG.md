@@ -2,8 +2,8 @@
 
 ## NOW
 
-- [ ] Walidacja daty cen na jutro - czy jutro rzeczywiscie jest jutro
-- [ ] Dodać CI do githuba
+- [ ] Uruchomienie na lokalnym serwerze
+- [ ] Automatyczne okresowe pobieranie danych
 - [ ] Rozróżnienie taniej/drogiej dystrybucji
 
 ## NEXT
@@ -17,7 +17,6 @@
 - [ ] Zapisywanie pobranych cen
 - [ ] Historia cen
 - [ ] Wykres historii cen
-- [ ] Automatyczne okresowe pobieranie danych
 - [ ] API dla konkretnej daty
 - [ ] Frontend mobile / Qt Android
 - [ ] Publiczne wdrożenie
@@ -44,3 +43,5 @@
 - [x] Obsługa błędów pobierania TGE
 - [x] Wyświetlanie informacji o dacie danych na stroni
 - [x] Min/max dnia + TESTY!!
+- [x] Walidacja daty cen na jutro - czy jutro rzeczywiscie jest jutro
+- [x] Dodać CI do githuba

@@ -15,7 +15,7 @@ private:
 	void routeToIndex();
 	void routeToPricesTomorrow();
 	void routeToPricesToday();
-	dailyPrices getPrices(const std::chrono::year_month_day date);
+	std::optional<dailyPrices> getPrices(const std::chrono::year_month_day date);
         crow::json::wvalue extracted(crow::json::wvalue &response);
         crow::json::wvalue prepareResponse(const dailyPrices &prices);
 

@@ -7,6 +7,8 @@ energyPricesTable tgePriceProvider::getPrices(const std::chrono::year_month_day 
 	tgeUrlBuilder builder;
 	httpClient client(builder.getUrlForDate(date));
 	TgeParser parser;
+	auto result = parser.parseEnergyPricesTable(client.getPage());
+	result.first = date;
 
-	return parser.parseEnergyPricesTable(client.getPage());
+	return result;
 }

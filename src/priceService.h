@@ -8,9 +8,11 @@
 class priceService {
 public:
 	priceService(priceProvider &priceProvider);
-	dailyPrices getPriceTable(const std::chrono::year_month_day date);
+	std::optional<dailyPrices> getPriceTable(const std::chrono::year_month_day date);
 	priceSummary getPriceSummary(const std::chrono::year_month_day date);
 private:
+	bool checkDate(std::string_view dateFromTable, std::string_view requestedDate);
+	bool anyPricesExists(const dailyPrices &prices);
 	std::optional<double> getPrice(const EnergyPrice &row);
 	dailyPrices getPriceTable(const energyPricesTable &table);
 	std::string formateTimePeriod(std::string_view time);

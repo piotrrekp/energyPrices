@@ -33,7 +33,10 @@ void energyPricesServer::routeToPricesTomorrow() {
 		std::chrono::year_month_day day{std::chrono::sys_days{date} + std::chrono::days{1}};
 
 		auto prices = this->getPrices(day);
-		return prepareResponse(prices);
+		if (!prices) {
+			return crow::json::wvalue{nullptr};
+		}
+		return prepareResponse(*prices);
 	});
 }
 
@@ -43,7 +46,10 @@ void energyPricesServer::routeToPricesToday() {
 			std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now())};
 
 		auto prices = this->getPrices(date);
-		return prepareResponse(prices);
+		if (!prices) {
+			return crow::json::wvalue{nullptr};
+		}
+		return prepareResponse(*prices);
 	});
 }
 
@@ -66,6 +72,6 @@ crow::json::wvalue energyPricesServer::prepareResponse(const dailyPrices &prices
 		return response;
 }
 
-dailyPrices energyPricesServer::getPrices(const std::chrono::year_month_day date) {
-	return pricesService.getPriceTable(date);
+std::optional<dailyPrices> energyPricesServer::getPrices(const std::chrono::year_month_day deliveryDate) {
+	return pricesService.getPriceTable(deliveryDate);
 }

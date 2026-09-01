@@ -1,4 +1,5 @@
 #include "priceService.h"
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <cmath>
@@ -8,6 +9,10 @@ priceService::priceService(priceProvider &_provider) : provider(_provider) {}
 dailyPrices priceService::getPriceTable(const energyPricesTable &table) {
 	if (table.second.empty()) {
 		return dailyPrices(table.first, {});
+	}
+
+	if (!checkDate(table.second.at(0).time, stringUtils::getDate(table.first))) {
+		return dailyPrices{{}, {}};
 	}
 
 	std::vector<hourlyPrice> allPrices;
@@ -21,8 +26,28 @@ dailyPrices priceService::getPriceTable(const energyPricesTable &table) {
 	return dailyPrices(table.first, allPrices);
 }
 
-dailyPrices priceService::getPriceTable(const std::chrono::year_month_day date) {
-	return getPriceTable(provider.getPrices(date));
+std::optional<dailyPrices> priceService::getPriceTable(const std::chrono::year_month_day date) {
+	auto prices = getPriceTable(provider.getPrices(date));
+	if (prices.getDate() == date && anyPricesExists(prices)) {
+		return prices;
+	} else {
+		return std::nullopt;
+	}
+}
+
+bool priceService::anyPricesExists(const dailyPrices &prices) {
+	return std::ranges::any_of(prices.getPrices(), [](const auto &hourly){
+		return hourly.price.has_value();
+	});
+}
+
+bool priceService::checkDate(std::string_view dateFromTable, std::string_view requestedDate) {
+	const auto found = dateFromTable.find('_');
+	if (found == dateFromTable.npos) {
+		return false;
+	}
+
+	return dateFromTable.substr(0, found) == requestedDate;
 }
 
 std::string priceService::formateTimePeriod(std::string_view time) {
@@ -56,6 +81,4 @@ std::optional<double> priceService::getPrice(const EnergyPrice &row) {
 
 double priceService::convertToKWh(const double pricePerMWh) {
 	return std::round (pricePerMWh / 10.) / 100.;
-
 }
-
