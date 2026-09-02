@@ -54,7 +54,9 @@ public:
 private:
     static priceSummary calculateSummary(const std::vector<hourlyPrice>& prices) {
 	auto validPrices = prices |
-	    std::views::filter([](const hourlyPrice &price) {return price.price.has_value();});
+	    std::views::filter([](const hourlyPrice &price) {
+		    return price.price.has_value();
+	});
 	if (validPrices.empty()) {
 	    return {std::nullopt, std::nullopt};
 	}
