@@ -2,7 +2,7 @@
 
 ## NOW
 
-- [ ] Uruchomienie na lokalnym serwerze
+- [ ] Automatyzacja aktualizacji na serwerze testowym
 - [ ] Automatyczne okresowe pobieranie danych
 - [ ] Rozróżnienie taniej/drogiej dystrybucji
 
@@ -45,3 +45,4 @@
 - [x] Min/max dnia + TESTY!!
 - [x] Walidacja daty cen na jutro - czy jutro rzeczywiscie jest jutro
 - [x] Dodać CI do githuba
+- [x] Uruchomienie na lokalnym serwerze
