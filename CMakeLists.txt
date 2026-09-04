@@ -155,14 +155,28 @@ target_compile_options(integrationTest
 		-Werror
 )
 
-include(GoogleTest)
-gtest_discover_tests(unitTest
-	PROPERTIES LABELS unit
+add_executable(liveTest
+	tests/integration/tgeLiveTest.cc
 )
 
-gtest_discover_tests(integrationTest
-	PROPERTIES LABELS integration
+target_link_libraries(liveTest
+	PRIVATE
+		energyPriceCore
+		GTest::gmock_main
 )
+
+target_compile_options(liveTest
+	PRIVATE
+		-Wall
+		-Wextra
+		-Wpedantic
+		-Werror
+)
+
+include(GoogleTest)
+gtest_discover_tests(unitTest PROPERTIES LABELS unit)
+gtest_discover_tests(integrationTest PROPERTIES LABELS integration)
+gtest_discover_tests(liveTest PROPERTIES LABELS live)
 
 option(ENABLE_ASAN "Enable AddressSanitizer" ON)
 
@@ -177,16 +191,21 @@ if(ENABLE_ASAN)
                 -fsanitize=address
                 -fno-omit-frame-pointer
         )
-        target_link_options(unitTest PRIVATE -fsanitize=address
-        )
         target_compile_options(integrationTest PRIVATE
                 -fsanitize=address
                 -fno-omit-frame-pointer
         )
-        target_link_options(integrationTest PRIVATE -fsanitize=address)
+
+        target_compile_options(liveTest PRIVATE
+                -fsanitize=address
+                -fno-omit-frame-pointer
+        )
 	target_compile_options(energyPrices PRIVATE -fsanitize=address -g)
+        target_link_options(integrationTest PRIVATE -fsanitize=address)
 	target_link_options(energyPrices PRIVATE -fsanitize=address)
 	target_link_options(energyPricesServer PRIVATE -fsanitize=address)
+	target_link_options(liveTest PRIVATE -fsanitize=address)
+        target_link_options(unitTest PRIVATE -fsanitize=address)
     else()
         message(WARNING "AddressSanitizer is not configured for this compiler")
     endif()
