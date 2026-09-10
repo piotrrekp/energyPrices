@@ -14,9 +14,10 @@ add_library(energyPriceCore
 	src/httpClient.cc
 	src/priceService.cc
 	src/stringUtils.cc
+	src/sqliteConnection.cc
 	src/tgeParser.cc
-	src/tgeUrlBuilder.cc
 	src/tgePriceProvider.cc
+	src/tgeUrlBuilder.cc
 )
 
 target_include_directories(energyPriceCore
@@ -44,6 +45,7 @@ FetchContent_MakeAvailable(Crow)
 
 find_package(LibXml2 REQUIRED)
 find_package(CURL REQUIRED)
+find_package(SQLite3 REQUIRED)
 
 target_link_libraries(energyPriceCore
 	PRIVATE
@@ -67,6 +69,7 @@ add_executable(energyPrices
 target_link_libraries(energyPrices
 	PRIVATE
 		energyPriceCore
+		SQLite::SQLite3
 )
 
 target_compile_options(energyPrices
@@ -81,12 +84,14 @@ add_executable(energyPricesServer
 	app/server.cc
 	src/energyPricesServer.cc
 	src/priceService.cc
+	src/sqliteConnection.cc
 )
 
 target_link_libraries(energyPricesServer
 	PRIVATE
 		energyPriceCore
 		Crow::Crow
+		SQLite::SQLite3
 )
 
 target_compile_options(energyPricesServer
