@@ -19,6 +19,8 @@ sqliteConnection::sqliteConnection(
 			&conn,
 			flag,
 			nullptr);
+
+	connection.reset(conn);
 	if (result != SQLITE_OK) {
 		const std::string error = conn == nullptr
 			? sqlite3_errmsg(conn)
@@ -30,7 +32,6 @@ sqliteConnection::sqliteConnection(
 			error
 		};
 	}
-	connection.reset(conn);
 	sqlite3_busy_timeout(connection.get(), 5000);
 }
 

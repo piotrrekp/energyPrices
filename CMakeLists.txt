@@ -107,6 +107,8 @@ find_package(GTest REQUIRED)
 
 add_executable(unitTest
 	src/energyPricesServer.cc
+	src/databaseWriter.cc
+	tests/unit/databaseWriterTests.cc
 	tests/unit/tgeParserTest.cc
 	tests/unit/htmlTableExtractorTest.cc
 	tests/unit/httpClientTests.cc
@@ -122,6 +124,7 @@ target_link_libraries(unitTest
 		GTest::gmock_main
 		LibXml2::LibXml2
 		Crow::Crow
+		SQLite::SQLite3
 )
 
 target_compile_definitions(unitTest
