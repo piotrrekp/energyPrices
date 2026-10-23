@@ -163,7 +163,37 @@ TEST_F(dataFetcherTest, PropagatesWriterFailure) {
     EXPECT_THROW(fetcher.store(day), std::runtime_error);
 }
 
-// Pending contracts: empty responses and DST period identifiers.
+TEST_F(dataFetcherTest, DoesNotWriteEmptyResponse) {
+    EXPECT_CALL(provider, getPrices(day)).WillOnce(testing::Return(energyPricesTable{day, {}}));
+    EXPECT_CALL(writer, store(testing::_)).Times(0);
+
+    EXPECT_NO_THROW(fetcher.store(day));
+}
+
+TEST_F(dataFetcherTest, DoesNotWriteWhenAllPricesAreMissing) {
+    const energyPricesTable data{day, {
+        {"2026-09-30_H1", std::nullopt, std::nullopt, std::nullopt}}};
+    EXPECT_CALL(provider, getPrices(day)).WillOnce(testing::Return(data));
+    EXPECT_CALL(writer, store(testing::_)).Times(0);
+
+    EXPECT_NO_THROW(fetcher.store(day));
+}
+
+TEST_F(dataFetcherTest, RecordsTimestampAfterFetching) {
+    std::chrono::system_clock::time_point fetchedAt;
+    EXPECT_CALL(provider, getPrices(day)).WillOnce([&](auto) {
+        fetchedAt = std::chrono::system_clock::now();
+        return fullDay();
+    });
+    EXPECT_CALL(writer, store(testing::_)).WillOnce([&](const fetchedDay& saved) {
+        EXPECT_GE(saved.timestamp, fetchedAt);
+        EXPECT_LE(saved.timestamp, std::chrono::system_clock::now());
+    });
+
+    fetcher.store(day);
+}
+
+// Pending contract: DST period identifiers.
 // An exact timestamp test also needs a controllable clock.
 
 } // namespace
