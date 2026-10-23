@@ -10,7 +10,7 @@ TEST(TgeParserIntegration, parsesHourlyPricesFromGoldenCase) {
 		loadFile(std::string(TEST_DATA_DIR) + "/tgeGoldenCase.html");
 
 	const energyPricesTable expected{
-		std::chrono::year_month_day{},
+		std::chrono::year{2026} / 7 / 18,
 		{{"2026-07-18_H01", 669.04, 679.53, 671.62},
 		{"2026-07-18_H02", 615.00, 631.88, 621.20},
 		{"2026-07-18_H03", 590.00, 617.83, 597.74},

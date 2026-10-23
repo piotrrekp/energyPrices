@@ -13,10 +13,12 @@ add_library(energyPriceCore
 	src/htmlTableExtractor.cc
 	src/httpClient.cc
 	src/priceService.cc
+	src/priceUtils.cc
 	src/stringUtils.cc
+	src/sqliteConnection.cc
 	src/tgeParser.cc
-	src/tgeUrlBuilder.cc
 	src/tgePriceProvider.cc
+	src/tgeUrlBuilder.cc
 )
 
 target_include_directories(energyPriceCore
@@ -44,6 +46,7 @@ FetchContent_MakeAvailable(Crow)
 
 find_package(LibXml2 REQUIRED)
 find_package(CURL REQUIRED)
+find_package(SQLite3 REQUIRED)
 
 target_link_libraries(energyPriceCore
 	PRIVATE
@@ -67,6 +70,7 @@ add_executable(energyPrices
 target_link_libraries(energyPrices
 	PRIVATE
 		energyPriceCore
+		SQLite::SQLite3
 )
 
 target_compile_options(energyPrices
@@ -81,12 +85,15 @@ add_executable(energyPricesServer
 	app/server.cc
 	src/energyPricesServer.cc
 	src/priceService.cc
+	src/priceUtils.cc
+	src/sqliteConnection.cc
 )
 
 target_link_libraries(energyPricesServer
 	PRIVATE
 		energyPriceCore
 		Crow::Crow
+		SQLite::SQLite3
 )
 
 target_compile_options(energyPricesServer
@@ -102,6 +109,10 @@ find_package(GTest REQUIRED)
 
 add_executable(unitTest
 	src/energyPricesServer.cc
+	src/dataFetcher.cc
+	src/databaseWriter.cc
+	tests/unit/databaseWriterTests.cc
+	tests/unit/dataFetcherTests.cc
 	tests/unit/tgeParserTest.cc
 	tests/unit/htmlTableExtractorTest.cc
 	tests/unit/httpClientTests.cc
@@ -117,6 +128,7 @@ target_link_libraries(unitTest
 		GTest::gmock_main
 		LibXml2::LibXml2
 		Crow::Crow
+		SQLite::SQLite3
 )
 
 target_compile_definitions(unitTest
@@ -133,17 +145,22 @@ target_compile_options(unitTest
 )
 
 add_executable(integrationTest
+	src/dataFetcher.cc
+	src/databaseWriter.cc
 	tests/integration/tgeGoldenCaseTest.cc
+	tests/integration/writeToDatabaseTest.cc
 )
 
 target_link_libraries(integrationTest
 	PRIVATE
 		energyPriceCore
 		GTest::gmock_main
+		SQLite::SQLite3
 )
 
 target_compile_definitions(integrationTest
 	PRIVATE
+		DATABASE_SCHEMA_PATH="${CMAKE_CURRENT_SOURCE_DIR}/database/schema.sql"
 		TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/data"
 )
 

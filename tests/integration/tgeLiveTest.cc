@@ -1,41 +1,43 @@
 #include <gtest/gtest.h>
+
+#include <chrono>
+#include <cmath>
+#include <set>
 #include <string>
 
 #include "tgeParser.h"
+#include "tgeUrlBuilder.h"
 #include "httpClient.h"
-#include "../utils/utils.h"
+#include "stringUtils.h"
 
 TEST(TgeParserIntegration, getTableFromSite) {
-	httpClient client("https://tge.pl/energia-elektryczna-rdn?dateShow=07-08-2026");
-	auto page = client.getPage();
+	// Use UTC dates, matching the application's current date convention.
+	const auto today = std::chrono::floor<std::chrono::days>(
+		std::chrono::system_clock::now());
+	const std::chrono::year_month_day yesterday{today - std::chrono::days{1}};
+	tgeUrlBuilder builder;
+	const auto url = builder.getUrlForDate(yesterday);
+	SCOPED_TRACE(url);
+	httpClient client(url);
+	const auto page = client.getPage();
 
 	TgeParser parser;
-	auto table = parser.parseEnergyPricesTable(page).second;
-	const std::vector<EnergyPrice> expected{
-		{"2026-08-08_H01", 699.86, 671.39, 693.18},
-		{"2026-08-08_H02", 668.01, 643.19, 662.94},
-		{"2026-08-08_H03", 642.52, 627.81, 639.45},
-		{"2026-08-08_H04", 640.01, 633.04, 638.67},
-		{"2026-08-08_H05", 634.04, 624.18, 632.08},
-		{"2026-08-08_H06", 632.49, 630.37, 632.54},
-		{"2026-08-08_H07", 624.66, 630.69, 626.00},
-		{"2026-08-08_H08", 576.70, 593.35, 580.25},
-		{"2026-08-08_H09", 500.47, 495.68, 503.34},
-		{"2026-08-08_H10", 326.89, 272.27, 313.72},
-		{"2026-08-08_H11", 46.63, 26.36, 42.15},
-		{"2026-08-08_H12", 20.00, 15.31, 18.84},
-		{"2026-08-08_H13", 20.00, 13.82, 18.57},
-		{"2026-08-08_H14", 17.20, 20.80, 18.14},
-		{"2026-08-08_H15", 20.01, 37.66, 24.30},
-		{"2026-08-08_H16", 92.10, 135.31, 103.44},
-		{"2026-08-08_H17", 300.74, 408.60, 328.08},
-		{"2026-08-08_H18", 505.38, 539.07, 520.55},
-		{"2026-08-08_H19", 632.35, 657.21, 645.25},
-		{"2026-08-08_H20", 789.65, 757.32, 781.88},
-		{"2026-08-08_H21", 837.16, 842.65, 838.92},
-		{"2026-08-08_H22", 820.00, 786.55, 808.79},
-		{"2026-08-08_H23", 735.23, 736.20, 736.90},
-		{"2026-08-08_H24", 682.33, 665.40, 678.26},
-	};
-	EXPECT_EQ(table, expected);
+	const auto parsed = parser.parseEnergyPricesTable(page);
+	const auto &table = parsed.second;
+	ASSERT_FALSE(table.empty()) << "No hourly prices for yesterday";
+	EXPECT_EQ(parsed.first, yesterday);
+	const auto periodPrefix = stringUtils::getDate(yesterday) + "_H";
+	std::set<std::string> periods;
+	for (const auto &row : table) {
+		SCOPED_TRACE(row.time);
+		EXPECT_TRUE(row.time.starts_with(periodPrefix));
+		EXPECT_TRUE(periods.insert(row.time).second) << "Duplicate period";
+		EXPECT_TRUE(row.meanPrice || row.fixing2 || row.fixing1)
+			<< "No available price";
+		for (const auto &price : {row.meanPrice, row.fixing2, row.fixing1}) {
+			if (price) {
+				EXPECT_TRUE(std::isfinite(*price));
+			}
+		}
+	}
 }

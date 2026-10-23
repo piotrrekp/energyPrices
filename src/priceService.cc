@@ -1,4 +1,6 @@
 #include "priceService.h"
+#include "priceUtils.h"
+
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
@@ -64,14 +66,7 @@ std::string priceService::formateTimePeriod(std::string_view time) {
 }
 
 std::optional<double> priceService::getPrice(const EnergyPrice &row) {
-	std::optional<double> value;
-	if (row.meanPrice) {
-		value = row.meanPrice;
-	} else if (row.fixing2) {
-		value = row.fixing2;
-	} else {
-		value = row.fixing1;
-	}
+	auto value = priceUtils::selectPrice(row);
 
 	if (value) {
 		return convertToKWh(*value);
