@@ -5,7 +5,7 @@ set -euo pipefail
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 project_dir="$(cd -- "${script_dir}/.." && pwd)"
 schema_path="${project_dir}/database/schema.sql"
-database_path="${1:-${project_dir}/data/energy_prices.sqlite3}"
+database_path="${1-${project_dir}}/data/energy_prices.sqlite3"
 
 if ! command -v sqlite3 >/dev/null 2>&1; then
     echo "Error: sqlite3 is not installed." >&2
