@@ -10,6 +10,9 @@ dataFetcher::dataFetcher(priceProvider &dataProvider, daySaver &dataWriter)
 
 void dataFetcher::store(const std::chrono::year_month_day &deliveryDay) {
 	auto prices = provider.getPrices(deliveryDay);
+	if (prices.second.empty()) {
+		return;
+	}
 	auto time = std::chrono::system_clock::now();
 	auto dataToWrite = prepareDay(prices, time, deliveryDay);
 	if (dataToWrite.prices.empty()) {

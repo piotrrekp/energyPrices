@@ -8,6 +8,7 @@
 
 #include "dataFetcher.h"
 #include "mockPriceProvider.h"
+#include "tgeParser.h"
 
 namespace {
 
@@ -164,7 +165,7 @@ TEST_F(dataFetcherTest, PropagatesWriterFailure) {
 }
 
 TEST_F(dataFetcherTest, DoesNotWriteEmptyResponse) {
-    EXPECT_CALL(provider, getPrices(day)).WillOnce(testing::Return(energyPricesTable{day, {}}));
+    EXPECT_CALL(provider, getPrices(day)).WillOnce(testing::Return(energyPricesTable{}));
     EXPECT_CALL(writer, store(testing::_)).Times(0);
 
     EXPECT_NO_THROW(fetcher.store(day));
@@ -191,6 +192,19 @@ TEST_F(dataFetcherTest, RecordsTimestampAfterFetching) {
     });
 
     fetcher.store(day);
+}
+
+TEST_F(dataFetcherTest, RejectsActualParsedDateBeforeWriting) {
+    TgeParser parser;
+    const auto parsed = parser.parseEnergyPricesTable(
+        "<table><tr><th>Prices</th></tr>"
+        "<tr><th>Data dostawy</th><th>Typ instrumentu</th></tr>"
+        "<tr><td>2026-09-29_H01</td><td>60</td><td>100</td></tr></table>");
+    ASSERT_EQ(parsed.first, std::chrono::year{2026} / 9 / 29);
+    EXPECT_CALL(provider, getPrices(day)).WillOnce(testing::Return(parsed));
+    EXPECT_CALL(writer, store(testing::_)).Times(0);
+
+    EXPECT_THROW(fetcher.store(day), std::invalid_argument);
 }
 
 // Pending contract: DST period identifiers.

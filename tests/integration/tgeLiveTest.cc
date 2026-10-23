@@ -22,8 +22,10 @@ TEST(TgeParserIntegration, getTableFromSite) {
 	const auto page = client.getPage();
 
 	TgeParser parser;
-	const auto table = parser.parseEnergyPricesTable(page).second;
+	const auto parsed = parser.parseEnergyPricesTable(page);
+	const auto &table = parsed.second;
 	ASSERT_FALSE(table.empty()) << "No hourly prices for yesterday";
+	EXPECT_EQ(parsed.first, yesterday);
 	const auto periodPrefix = stringUtils::getDate(yesterday) + "_H";
 	std::set<std::string> periods;
 	for (const auto &row : table) {

@@ -119,7 +119,7 @@ TEST_F(databaseWriterTest, StoresPartialSnapshotIncludingZeroAndNegativePrices) 
     EXPECT_EQ(query("SELECT complete FROM price_days")[0][0], "0");
 }
 
-TEST_F(databaseWriterTest, ReplacesSnapshotAndMetadataWithoutChangingOtherDays) {
+TEST_F(databaseWriterTest, MergesPartialUpdateWithoutLosingPeriodsOrChangingOtherDays) {
     auto data = snapshot();
     data.completed = true;
     writer->store(data);
@@ -127,17 +127,21 @@ TEST_F(databaseWriterTest, ReplacesSnapshotAndMetadataWithoutChangingOtherDays) 
     other.date = std::chrono::year{2026} / 10 / 1;
     other.prices = {{"2026-10-01_H1", 123.0}};
     writer->store(other);
-    data.prices = {{"2026-09-30_H2", 456.78}};
+    data.prices = {{"2026-09-30_H2", 456.78}, {"2026-09-30_H3", 0.0}};
     data.completed = false;
     data.timestamp += std::chrono::hours{1};
     writer->store(data);
 
-    const auto rows = query("SELECT delivery_date, time_period, price FROM hourly_prices ORDER BY delivery_date");
-    ASSERT_EQ(rows.size(), 2u);
-    EXPECT_EQ(rows[0][1], "2026-09-30_H2");
-    EXPECT_DOUBLE_EQ(std::stod(rows[0][2]), 456.78);
-    EXPECT_EQ(rows[1][0], "2026-10-01");
-    EXPECT_DOUBLE_EQ(std::stod(rows[1][2]), 123.0);
+    const auto rows = query("SELECT delivery_date, time_period, price FROM hourly_prices ORDER BY delivery_date, time_period");
+    ASSERT_EQ(rows.size(), 4u);
+    EXPECT_EQ(rows[0][1], "2026-09-30_H1");
+    EXPECT_DOUBLE_EQ(std::stod(rows[0][2]), 345.67);
+    EXPECT_EQ(rows[1][1], "2026-09-30_H2");
+    EXPECT_DOUBLE_EQ(std::stod(rows[1][2]), 456.78);
+    EXPECT_EQ(rows[2][1], "2026-09-30_H3");
+    EXPECT_DOUBLE_EQ(std::stod(rows[2][2]), 0.0);
+    EXPECT_EQ(rows[3][0], "2026-10-01");
+    EXPECT_DOUBLE_EQ(std::stod(rows[3][2]), 123.0);
     EXPECT_EQ(query("SELECT complete, updated_at FROM price_days WHERE delivery_date='2026-09-30'")[0],
         (std::vector<std::string>{"0", "2026-09-29 13:34:56"}));
 }
@@ -149,7 +153,7 @@ TEST_F(databaseWriterTest, RepeatedSnapshotDoesNotCreateDuplicates) {
     EXPECT_EQ(query("SELECT * FROM hourly_prices").size(), 2u);
 }
 
-TEST_F(databaseWriterTest, DuplicatePeriodRollsBackPricesAndMetadataAndAllowsRetry) {
+TEST_F(databaseWriterTest, DuplicatePeriodIsRejectedWithoutChangesAndAllowsRetry) {
     writer->store(snapshot());
     const auto beforeDays = query("SELECT * FROM price_days");
     const auto beforePrices = query("SELECT * FROM hourly_prices ORDER BY time_period");
@@ -157,7 +161,7 @@ TEST_F(databaseWriterTest, DuplicatePeriodRollsBackPricesAndMetadataAndAllowsRet
     data.completed = true;
     data.timestamp += std::chrono::hours{1};
     data.prices = {{"2026-09-30_H1", 999.0}, {"2026-09-30_H1", 888.0}};
-    EXPECT_THROW(writer->store(data), std::runtime_error);
+    EXPECT_THROW(writer->store(data), std::invalid_argument);
     EXPECT_EQ(query("SELECT * FROM price_days"), beforeDays);
     EXPECT_EQ(query("SELECT * FROM hourly_prices ORDER BY time_period"), beforePrices);
     data.prices.pop_back();
@@ -168,7 +172,7 @@ TEST_F(databaseWriterTest, DuplicatePeriodRollsBackPricesAndMetadataAndAllowsRet
 TEST_F(databaseWriterTest, FailedFirstSnapshotLeavesNoDayOrPrices) {
     auto data = snapshot();
     data.prices.push_back(data.prices.front());
-    EXPECT_THROW(writer->store(data), std::runtime_error);
+    EXPECT_THROW(writer->store(data), std::invalid_argument);
     EXPECT_TRUE(query("SELECT * FROM price_days").empty());
     EXPECT_TRUE(query("SELECT * FROM hourly_prices").empty());
 }
@@ -176,13 +180,17 @@ TEST_F(databaseWriterTest, FailedFirstSnapshotLeavesNoDayOrPrices) {
 TEST_F(databaseWriterTest, DatabaseFailureRollsBackWholeSnapshot) {
     writer->store(snapshot());
     const auto before = query("SELECT * FROM hourly_prices ORDER BY time_period");
+    const auto beforeDays = query("SELECT * FROM price_days");
     exec("CREATE TRIGGER reject_price BEFORE INSERT ON hourly_prices "
          "WHEN NEW.price = 999 BEGIN SELECT RAISE(ABORT, 'test write failure'); END");
     auto data = snapshot();
+    data.completed = true;
+    data.timestamp += std::chrono::hours{1};
     data.prices[0].pricePerMWh = 111;
     data.prices[1].pricePerMWh = 999;
     EXPECT_THROW(writer->store(data), std::runtime_error);
     EXPECT_EQ(query("SELECT * FROM hourly_prices ORDER BY time_period"), before);
+    EXPECT_EQ(query("SELECT * FROM price_days"), beforeDays);
 }
 
 TEST_F(databaseWriterTest, EmptySnapshotIsRejectedWithoutDeletingExistingPrices) {

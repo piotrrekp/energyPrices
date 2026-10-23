@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <string>
+#include <stdexcept>
 
 #include "tgeParser.h"
 
@@ -143,4 +144,49 @@ TEST(tgeParser, getDataFromTable) {
 		{"2026-07-18_H02", 615.00, 631.88, 621.20}};
 
 	EXPECT_EQ(result.second, expected);
+	EXPECT_EQ(result.first, std::chrono::year{2026} / 7 / 18);
+}
+
+namespace {
+std::string dateTable(const std::string &rows) {
+	return "<table><tr><th>Prices</th></tr>"
+		"<tr><th>Data dostawy</th><th>Typ instrumentu</th></tr>"
+		+ rows + "</table>";
+}
+}
+
+TEST(tgeParser, RejectsInvalidDeliveryDates) {
+	TgeParser parser;
+	for (const std::string period : {"2026-02-30_H01", "xxxx-07-18_H01", "2026/07/18_H01", "H01"}) {
+		SCOPED_TRACE(period);
+		EXPECT_THROW(parser.parseEnergyPricesTable(dateTable(
+			"<tr><td>" + period + "</td><td>60</td></tr>")), std::runtime_error);
+	}
+}
+
+TEST(tgeParser, RejectsMixedDeliveryDates) {
+	TgeParser parser;
+	EXPECT_THROW(parser.parseEnergyPricesTable(dateTable(
+		"<tr><td>2026-07-18_H01</td><td>60</td></tr>"
+		"<tr><td>2026-07-19_H02</td><td>60</td></tr>")), std::runtime_error);
+}
+
+TEST(tgeParser, PreservesDateWhenPricesAreMissing) {
+	TgeParser parser;
+	const auto data = parser.parseEnergyPricesTable(dateTable(
+		"<tr><td>2026-07-18_H01</td><td>60</td></tr>"));
+	EXPECT_EQ(data.first, std::chrono::year{2026} / 7 / 18);
+	ASSERT_EQ(data.second.size(), 1u);
+	EXPECT_FALSE(data.second[0].fixing1);
+	EXPECT_FALSE(data.second[0].fixing2);
+	EXPECT_FALSE(data.second[0].meanPrice);
+}
+
+TEST(tgeParser, EmptyOrShortRowsDoNotFabricateDate) {
+	TgeParser parser;
+	for (const auto &html : {std::string{}, dateTable(""), dateTable("<tr><td>Incomplete</td></tr>")}) {
+		const auto data = parser.parseEnergyPricesTable(html);
+		EXPECT_TRUE(data.second.empty());
+		EXPECT_FALSE(data.first.ok());
+	}
 }

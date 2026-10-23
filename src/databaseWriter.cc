@@ -6,6 +6,7 @@
 #include <chrono>
 #include <cmath>
 #include <memory>
+#include <set>
 #include <stdexcept>
 #include <string>
 
@@ -54,9 +55,13 @@ void databaseWriter::store(const fetchedDay& data) {
     if (data.prices.empty()) {
         throw std::invalid_argument{"Cannot store an empty price snapshot"};
     }
+    std::set<std::string> periods;
     for (const auto& price : data.prices) {
         if (price.period.empty() || !std::isfinite(price.pricePerMWh)) {
             throw std::invalid_argument{"Invalid price or empty time period"};
+        }
+        if (!periods.insert(price.period).second) {
+            throw std::invalid_argument{"Duplicate time period"};
         }
     }
 
@@ -77,12 +82,9 @@ void databaseWriter::store(const fetchedDay& data) {
         check(db, sqlite3_bind_int64(day.get(), 3, timestamp));
         execute(db, day.get());
 
-        auto remove = prepare(db, "DELETE FROM hourly_prices WHERE delivery_date = ?1");
-        bindText(db, remove.get(), 1, date);
-        execute(db, remove.get());
-
         auto insert = prepare(db,
-            "INSERT INTO hourly_prices(delivery_date, time_period, price) VALUES (?1, ?2, ?3)");
+            "INSERT INTO hourly_prices(delivery_date, time_period, price) VALUES (?1, ?2, ?3) "
+            "ON CONFLICT(delivery_date, time_period) DO UPDATE SET price = excluded.price");
         bindText(db, insert.get(), 1, date);
         for (const auto& price : data.prices) {
             bindText(db, insert.get(), 2, price.period);
